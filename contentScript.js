@@ -1,28 +1,46 @@
 console.log("MEFIRS Filler: Script loaded in frame: " + window.location.href);
 
 function clearAutomatedFields() {
-    // Clears numeric/text inputs we automate
+    // 1. Clear automated text/numeric inputs
     setInput("Number of Patients Transported", "");
 
-    // Finds and clicks 'X' or 'Minus' icons to clear dropdowns and multi-selects
-    // ImageTrend uses .fa-times and .fa-minus-circle for clearing values
-    const clearIcons = Array.from(document.querySelectorAll('.fa-times, .fa-minus-circle, .fa-close, .koSingleselect-selectedItem-clear, .koMultiselect-selectedItem-clear'));
-    clearIcons.forEach(icon => {
-        // Attempt to click the icon or its parent button
-        const clickable = icon.closest('button, .mod-value-action, div[click]') || icon;
-        clickable.click();
+    // 2. Targeted clear for specific automated dropdowns
+    const targetLabels = [
+        "Type of Service Requested",
+        "Vehicle Dispatch Location",
+        "Barriers to Patient Care",
+        "Destination/Transferred To",
+        "Reason for Choosing Destination",
+        "Primary Method of Payment",
+        "Type of Dispatch Delay",
+        "Type of Response Delay",
+        "Type of Transport Delay",
+        "Type of Turn-Around Delay"
+    ];
+
+    targetLabels.forEach(label => {
+        const fieldContainer = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
+                                    .find(el => el.innerText.includes(label));
+        if (fieldContainer) {
+            const clearIcon = fieldContainer.querySelector('.fa-times, .fa-close, .koSingleselect-selectedItem-clear, .koMultiselect-selectedItem-clear, .fa-minus-circle');
+            if (clearIcon) clearIcon.click();
+        }
     });
 
-    // Specifically targets and removes added crew cards in the Exposures & PPE section
-    const crewClearButtons = Array.from(document.querySelectorAll('.fa-times, .fa-close'))
-                                  .filter(el => el.closest('.single-row-control, .ko-grid-column'));
-    crewClearButtons.forEach(btn => btn.click());
+    // 3. Clear PPE cards ONLY within the Exposures & PPE section
+    // This prevents clearing the 'EMS Crew' or 'Crew Members' list on the Start Up tab
+    const exposuresSection = Array.from(document.querySelectorAll('.ko-grid-container, #sections'))
+                                  .find(el => el.innerText.includes("Exposures & PPE"));
+    if (exposuresSection) {
+        const ppeClearButtons = Array.from(exposuresSection.querySelectorAll('.fa-times, .fa-close'))
+                                     .filter(btn => btn.closest('.single-row-control, .ko-grid-column'));
+        ppeClearButtons.forEach(btn => btn.click());
+    }
 }
 
 function callEmergentMaineGeneral() {
     clearAutomatedFields();
     
-    // Buffer delay to let the form clear before starting new automation
     setTimeout(() => {
         press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
         setTimeout(startTab, 800);
@@ -250,23 +268,32 @@ function automatePPE(nextStepCallback) {
             }
 
             let currentCard = cards[i];
-            let dropdownTrigger = currentCard.querySelector('.ko-dropdown-placeholder, .ko-dropdown-value, .koMultiselect-down-button, .koMultiselect-searchbar');
+            let dropdownTrigger = currentCard.querySelector('.koMultiselect-searchbar, .koMultiselect-down-button, input.koMultiselect-searchbar-input');
 
             if (dropdownTrigger) {
                 dropdownTrigger.click();
                 
                 setTimeout(() => {
-                    press("dropdown", ["Gloves"]);
+                    let ppeItems = Array.from(document.querySelectorAll('.koMultiselect-dropDownItem span, .koMultiselect-dropDownItem'));
+                    let glovesOption = ppeItems.find(node => node.textContent.trim() === "Gloves");
                     
-                    setTimeout(() => {
-                        let okButton = Array.from(currentCard.querySelectorAll('button'))
-                                            .find(btn => btn.innerText.includes("OK"));
-                        if (okButton) okButton.click();
+                    if (glovesOption) {
+                        glovesOption.click();
                         
+                        setTimeout(() => {
+                            let okButtons = Array.from(currentCard.querySelectorAll('button, .button-control'));
+                            let okButton = okButtons.find(btn => btn.innerText.includes("OK"));
+                            
+                            if (okButton) okButton.click();
+                            
+                            i++;
+                            setTimeout(processNextCard, 800); 
+                        }, 800);
+                    } else {
                         i++;
-                        setTimeout(processNextCard, 600); 
-                    }, 600);
-                }, 600);
+                        setTimeout(processNextCard, 200);
+                    }
+                }, 800);
             } else {
                 i++;
                 processNextCard();
