@@ -1,8 +1,32 @@
 console.log("MEFIRS Filler: Script loaded in frame: " + window.location.href);
 
+function clearAutomatedFields() {
+    // Clears numeric/text inputs we automate
+    setInput("Number of Patients Transported", "");
+
+    // Finds and clicks 'X' or 'Minus' icons to clear dropdowns and multi-selects
+    // ImageTrend uses .fa-times and .fa-minus-circle for clearing values
+    const clearIcons = Array.from(document.querySelectorAll('.fa-times, .fa-minus-circle, .fa-close, .koSingleselect-selectedItem-clear, .koMultiselect-selectedItem-clear'));
+    clearIcons.forEach(icon => {
+        // Attempt to click the icon or its parent button
+        const clickable = icon.closest('button, .mod-value-action, div[click]') || icon;
+        clickable.click();
+    });
+
+    // Specifically targets and removes added crew cards in the Exposures & PPE section
+    const crewClearButtons = Array.from(document.querySelectorAll('.fa-times, .fa-close'))
+                                  .filter(el => el.closest('.single-row-control, .ko-grid-column'));
+    crewClearButtons.forEach(btn => btn.click());
+}
+
 function callEmergentMaineGeneral() {
-    press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
-    setTimeout(startTab, 800);
+    clearAutomatedFields();
+    
+    // Buffer delay to let the form clear before starting new automation
+    setTimeout(() => {
+        press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
+        setTimeout(startTab, 800);
+    }, 500);
 
     function startTab() {
         press("dropdown", ["Emergency Response (Primary Response Area)"]);
@@ -80,8 +104,12 @@ function callEmergentMaineGeneral() {
 }
 
 function callNonEmergentMaineGeneral() {
-    press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
-    setTimeout(startTab, 800);
+    clearAutomatedFields();
+
+    setTimeout(() => {
+        press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
+        setTimeout(startTab, 800);
+    }, 500);
 
     function startTab() {
         press("dropdown", ["Emergency Response (Primary Response Area)"]);
@@ -153,8 +181,12 @@ function callNonEmergentMaineGeneral() {
 }
 
 function liftAssist() {
-    press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
-    setTimeout(startTab, 800);
+    clearAutomatedFields();
+
+    setTimeout(() => {
+        press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
+        setTimeout(startTab, 800);
+    }, 500);
 
     function startTab() {
         press("dropdown", ["Emergency Response (Primary Response Area)"]);
@@ -201,9 +233,7 @@ function setInput(labelName, value) {
 function automatePPE(nextStepCallback) {
     press("button", ["Add All Crew"]);
     
-    // Wait for the cards to generate on the page
     setTimeout(() => {
-        // Find all exposure cards by looking for the unique container class
         let cards = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
                          .filter(el => el.innerText.includes("EMS Professional (Crew Member) ID:"));
 
@@ -220,19 +250,15 @@ function automatePPE(nextStepCallback) {
             }
 
             let currentCard = cards[i];
-            
-            // Find the dropdown placeholder or bars icon within this specific card
             let dropdownTrigger = currentCard.querySelector('.ko-dropdown-placeholder, .ko-dropdown-value, .koMultiselect-down-button, .koMultiselect-searchbar');
 
             if (dropdownTrigger) {
                 dropdownTrigger.click();
                 
                 setTimeout(() => {
-                    // Click Gloves in the global list
                     press("dropdown", ["Gloves"]);
                     
                     setTimeout(() => {
-                        // Find the OK button specifically within this card's container
                         let okButton = Array.from(currentCard.querySelectorAll('button'))
                                             .find(btn => btn.innerText.includes("OK"));
                         if (okButton) okButton.click();
@@ -282,7 +308,6 @@ function press(typeOfClick, arrayToPassIn) {
     if (!grabNodes) return;
     
     arrayToPassIn.forEach(val => {
-        // Regex strips invisible zero-width characters that often break text matching in this UI
         let matchingNodes = grabNodes.filter(node => node.textContent.replace(/[\u200B-\u200D\uFEFF]/g, '').trim() === val);
         matchingNodes.forEach(node => node.click());
     });
