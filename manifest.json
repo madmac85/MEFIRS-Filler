@@ -1,19 +1,15 @@
 {
   "manifest_version": 3,
   "name": "MEFIRS Filler",
-  "description": "Designed to auto fill templates and values for narrative",
   "version": "1.4.3",
-  "icons": {
-    "16": "WHITE.png"
-  },
-  "action": {
-    "default_popup": "popup.html"
-  },
   "content_scripts": [
     {
       "matches": [ "https://www.mefirs.org/*" ],
       "js": [ "contentScript.js" ],
       "all_frames": true
     }
-  ]
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
 }
