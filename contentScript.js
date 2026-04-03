@@ -1,4 +1,4 @@
-// Functions for button clicks, updated with MEFIRS button labels and UI flow
+// Functions for button clicks, updated for MEFIRS with "Distance" response delay
 
 function callEmergentMaineGeneral() {
 
@@ -8,7 +8,7 @@ function callEmergentMaineGeneral() {
     setTimeout(startTab, 10);
 
     function startTab() {
-        // Updated based on image_8c3d09.png
+        // Based on image_8c3d09.png
         let startTabDropdowns = ["Emergency Response (Primary Response Area)"];
         let startTabButtons = [
             "Patient Contact Made", 
@@ -27,8 +27,13 @@ function callEmergentMaineGeneral() {
     }
 
     function responseTab() {
-        // Updated based on image_8c3d47.png and image_8c3d88.png
-        let responseInfoTabButtons = ["Emergent (Immediate Response)", "Lights and Sirens", "Single"];
+        // Updated to include "Distance" based on image_8c93db.png
+        let responseInfoTabButtons = [
+            "Emergent (Immediate Response)", 
+            "Lights and Sirens", 
+            "Single", 
+            "Distance"
+        ];
         
         press("button", responseInfoTabButtons);
 
@@ -39,7 +44,7 @@ function callEmergentMaineGeneral() {
     }
 
     function transportInfoTab() {
-        // Updated based on image_8c8f63.png
+        // Based on image_8c8f63.png
         let transportButtons = [
             "Non-Emergent", 
             "No Lights or Sirens", 
@@ -55,7 +60,7 @@ function callEmergentMaineGeneral() {
     }
 
     function transportDestTab() {
-        // Updated based on image_8c8fa3.png
+        // Based on image_8c8fa3.png
         press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
         press("dropdown", ["Hospital-Emergency Department"]);
         press("button", ["Closest Facility"]);
@@ -70,7 +75,6 @@ function callEmergentMaineGeneral() {
     }
 }
 
-// Logic for Non-Emergent call to MaineGeneral
 function callNonEmergentMaineGeneral() {
     press("menu", ["Start Up"]);
     press("menu", ["Start-Up"]);
@@ -87,7 +91,15 @@ function callNonEmergentMaineGeneral() {
     }
 
     function responseTab() {
-        press("button", ["Non-Emergent", "No Lights or Sirens", "Single"]);
+        // Updated to include "Distance" based on image_8c93db.png
+        let responseInfoTabButtons = [
+            "Non-Emergent", 
+            "No Lights or Sirens", 
+            "Single", 
+            "Distance"
+        ];
+
+        press("button", responseInfoTabButtons);
 
         press("menu", ["Transport"]);
         press("menu", ["Transport Info"]);
@@ -116,7 +128,6 @@ function callNonEmergentMaineGeneral() {
     }
 }
 
-// Function for Lift Assists based on Public Assistance service type
 function liftAssist() {
     press("menu", ["Start Up"]);
     press("menu", ["Start-Up"]);
@@ -124,7 +135,6 @@ function liftAssist() {
     setTimeout(startTab, 10);
 
     function startTab() {
-        // Selecting Public Assistance
         press("dropdown", ["Public Assistance / Other Not Listed"]);
         press("button", ["Non-Patient Incident (Not Otherwise Listed)"]);
 
@@ -134,8 +144,8 @@ function liftAssist() {
     }
 
     function responseTab() {
-        // image_8c3d68.png shows a delay screen, often bypassed for lift assists
-        press("button", ["Non-Emergent", "No Lights or Sirens", "None"]);
+        // Included "Distance" here as well if applicable for public assistance records
+        press("button", ["Non-Emergent", "No Lights or Sirens", "None", "Distance"]);
 
         press("menu", ["Signatures"]);
         setTimeout(signatureTab, 10);
@@ -147,7 +157,6 @@ function liftAssist() {
     }
 }
 
-// Press function handles the specific ImageTrend UI element classes
 function press(typeOfClick, arrayToPassIn) {
     let grabNodes;
 
@@ -172,7 +181,6 @@ function press(typeOfClick, arrayToPassIn) {
     nodesToClick.forEach(node => node && node.click());
 }
 
-// Logic to inject the custom buttons onto the MEFIRS page
 function buttonWatcher() {
     const functionArray = [callEmergentMaineGeneral, callNonEmergentMaineGeneral, liftAssist];
     const buttonNames = ["Emergent to MaineGeneral", "Non-Emergent to MaineGeneral", "Lift Assist"];
@@ -196,7 +204,6 @@ function buttonWatcher() {
     }
 
     function checkInnerHTML() {
-        // Triggered by the "Preset Value - No Delays" button seen in image_8c3d68.png
         const foundButton = Array.from(document.querySelectorAll("*")).find(element => element.innerHTML === "Preset Value - No Delays");
 
         if (foundButton) {
@@ -210,7 +217,6 @@ function buttonWatcher() {
 
 buttonWatcher();
 
-// Logic for the Narrative Text Area (ID 73533)
 fieldWatcher();
 
 function fieldWatcher() {
