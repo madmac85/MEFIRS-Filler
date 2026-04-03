@@ -1,139 +1,291 @@
-console.log("MEFIRS Filler: Script loaded in frame: " + window.location.href); //
+console.log("MEFIRS Filler: Script loaded in frame: " + window.location.href);
 
 function callEmergentMaineGeneral() {
-    press("menu", ["Start Up"]);
-    press("menu", ["Start-Up"]);
-    setTimeout(startTab, 10);
+    press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
+    setTimeout(startTab, 800);
 
     function startTab() {
-        let startTabDropdowns = ["Emergency Response (Primary Response Area)"];
+        press("dropdown", ["Emergency Response (Primary Response Area)"]);
         let startTabButtons = [
             "Patient Contact Made", 
             "Patient Evaluated and Care Provided", 
             "Initiated and Continued Primary Care", 
             "Transport by This EMS Unit (This Crew Only)"
         ];
-        press("dropdown", startTabDropdowns);
         press("button", startTabButtons);
-        press("menu", ["Response"]);
-        press("menu", ["Response Info"]);
-        setTimeout(responseTab, 10);
+        
+        press("menu", ["Exposures & PPE"]);
+        setTimeout(() => {
+            automatePPE(responseTab);
+        }, 1000);
     }
 
     function responseTab() {
-        let responseInfoTabButtons = [
-            "Emergent (Immediate Response)", 
-            "Lights and Sirens", 
-            "Single", 
-            "Distance"
-        ];
-        press("button", responseInfoTabButtons);
-        press("menu", ["Transport"]);
-        press("menu", ["Transport Info"]);
-        setTimeout(transportInfoTab, 10);
+        press("menu", ["Response", "Response Info"]);
+        
+        setTimeout(() => {
+            let responseInfoTabButtons = [
+                "Emergent (Immediate Response)", 
+                "Lights and Sirens", 
+                "Single", 
+                "Not Recorded",
+                "Distance",
+                "None/No Delay"
+            ];
+            press("button", responseInfoTabButtons);
+            press("dropdown", ["Augusta Fire Department", "None Noted"]);
+
+            press("menu", ["Transport", "Transport Info"]);
+            setTimeout(transportInfoTab, 800);
+        }, 1000);
     }
 
     function transportInfoTab() {
+        setInput("Number of Patients Transported", "1");
+
         let transportButtons = [
             "Non-Emergent", 
             "No Lights or Sirens", 
             "Ground-Ambulance", 
             "Wheeled Stretcher", 
-            "Semi-Fowlers"
+            "None/No Delay"
         ];
         press("button", transportButtons);
+        press("dropdown secondary", ["Semi-Fowlers"]);
+
         press("menu", ["Disposition Destination"]);
-        setTimeout(transportDestTab, 10);
+        setTimeout(transportDestTab, 800);
     }
 
     function transportDestTab() {
         press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
-        press("dropdown", ["Hospital-Emergency Department"]);
-        press("button", ["Closest Facility"]);
+        
+        setTimeout(() => {
+            press("dropdown", ["Hospital-Emergency Department"]);
+            press("button", ["Closest Facility", "Wheeled Stretcher"]);
+
+            press("button", ["Add"]); 
+            setTimeout(() => {
+                press("dropdown", ["Emergency Department"]);
+                
+                setTimeout(() => {
+                    press("menu", ["Billing Information"]);
+                    setTimeout(() => {
+                        press("dropdown", ["No Insurance Identified"]);
+                    }, 800);
+                }, 800);
+            }, 800);
+        }, 800);
     }
 }
 
 function callNonEmergentMaineGeneral() {
-    press("menu", ["Start Up"]);
-    press("menu", ["Start-Up"]);
-    setTimeout(startTab, 10);
+    press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
+    setTimeout(startTab, 800);
 
     function startTab() {
         press("dropdown", ["Emergency Response (Primary Response Area)"]);
         press("button", ["Patient Contact Made", "Patient Evaluated and Care Provided", "Initiated and Continued Primary Care", "Transport by This EMS Unit (This Crew Only)"]);
-        press("menu", ["Response"]);
-        press("menu", ["Response Info"]);
-        setTimeout(responseTab, 10);
+        
+        press("menu", ["Exposures & PPE"]);
+        setTimeout(() => {
+            automatePPE(responseTab);
+        }, 1000);
     }
 
     function responseTab() {
-        let responseInfoTabButtons = [
-            "Non-Emergent", 
-            "No Lights or Sirens", 
-            "Single", 
-            "Distance"
-        ];
-        press("button", responseInfoTabButtons);
-        press("menu", ["Transport"]);
-        press("menu", ["Transport Info"]);
-        setTimeout(transportInfoTab, 10);
+        press("menu", ["Response", "Response Info"]);
+
+        setTimeout(() => {
+            let responseInfoTabButtons = [
+                "Emergent (Immediate Response)", 
+                "No Lights or Sirens", 
+                "Single", 
+                "Not Recorded",
+                "Distance",
+                "None/No Delay"
+            ];
+            press("button", responseInfoTabButtons);
+            press("dropdown", ["Augusta Fire Department", "None Noted"]);
+
+            press("menu", ["Transport", "Transport Info"]);
+            setTimeout(transportInfoTab, 800);
+        }, 1000);
     }
 
     function transportInfoTab() {
-        press("button", ["Non-Emergent", "No Lights or Sirens", "Ground-Ambulance", "Wheeled Stretcher", "Semi-Fowlers"]);
+        setInput("Number of Patients Transported", "1");
+
+        let transportButtons = [
+            "Non-Emergent", 
+            "No Lights or Sirens", 
+            "Ground-Ambulance", 
+            "Wheeled Stretcher", 
+            "None/No Delay"
+        ];
+        press("button", transportButtons);
+        press("dropdown secondary", ["Semi-Fowlers"]);
+
         press("menu", ["Disposition Destination"]);
-        setTimeout(transportDestTab, 10);
+        setTimeout(transportDestTab, 800);
     }
 
     function transportDestTab() {
         press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
-        press("dropdown", ["Hospital-Emergency Department"]);
-        press("button", ["Closest Facility"]);
+        
+        setTimeout(() => {
+            press("dropdown", ["Hospital-Emergency Department"]);
+            press("button", ["Closest Facility", "Wheeled Stretcher"]);
+
+            press("button", ["Add"]);
+            setTimeout(() => {
+                press("dropdown", ["Emergency Department"]);
+
+                setTimeout(() => {
+                    press("menu", ["Billing Information"]);
+                    setTimeout(() => {
+                        press("dropdown", ["No Insurance Identified"]);
+                    }, 800);
+                }, 800);
+            }, 800);
+        }, 800);
     }
 }
 
 function liftAssist() {
-    press("menu", ["Start Up"]);
-    press("menu", ["Start-Up"]);
-    setTimeout(startTab, 10);
+    press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
+    setTimeout(startTab, 800);
 
     function startTab() {
-        press("dropdown", ["Public Assistance / Other Not Listed"]);
+        press("dropdown", ["Emergency Response (Primary Response Area)"]);
         press("button", ["Non-Patient Incident (Not Otherwise Listed)"]);
-        press("menu", ["Response"]);
-        press("menu", ["Response Info"]);
-        setTimeout(responseTab, 10);
+        
+        press("menu", ["Exposures & PPE"]);
+        setTimeout(() => {
+            automatePPE(responseTab);
+        }, 1000);
     }
 
     function responseTab() {
-        press("button", ["Non-Emergent", "No Lights or Sirens", "None", "Distance"]);
+        press("menu", ["Response", "Response Info"]);
+
+        setTimeout(() => {
+            press("button", ["Emergent (Immediate Response)", "No Lights or Sirens", "Single", "Not Recorded", "Distance", "None/No Delay"]);
+            press("dropdown", ["Augusta Fire Department", "None Noted"]);
+
+            setTimeout(() => {
+                press("menu", ["Billing Information"]);
+                setTimeout(() => {
+                    press("dropdown", ["No Insurance Identified"]);
+                }, 800);
+            }, 800);
+        }, 1000);
     }
+}
+
+function setInput(labelName, value) {
+    const inputs = Array.from(document.querySelectorAll('input'));
+    const targetInput = inputs.find(input => {
+        const parent = input.closest('.ko-grid-column, .single-row-control');
+        return parent && parent.innerText.includes(labelName);
+    });
+
+    if (targetInput) {
+        targetInput.value = value;
+        targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+        targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+        targetInput.dispatchEvent(new Event('blur', { bubbles: true }));
+    }
+}
+
+function automatePPE(nextStepCallback) {
+    press("button", ["Add All Crew"]);
+    
+    // Wait for the cards to generate on the page
+    setTimeout(() => {
+        // Find all exposure cards by looking for the unique container class
+        let cards = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
+                         .filter(el => el.innerText.includes("EMS Professional (Crew Member) ID:"));
+
+        if (cards.length === 0) {
+            nextStepCallback();
+            return;
+        }
+
+        let i = 0;
+        const processNextCard = () => {
+            if (i >= cards.length) {
+                nextStepCallback();
+                return;
+            }
+
+            let currentCard = cards[i];
+            
+            // Find the dropdown placeholder or bars icon within this specific card
+            let dropdownTrigger = currentCard.querySelector('.ko-dropdown-placeholder, .ko-dropdown-value, .koMultiselect-down-button, .koMultiselect-searchbar');
+
+            if (dropdownTrigger) {
+                dropdownTrigger.click();
+                
+                setTimeout(() => {
+                    // Click Gloves in the global list
+                    press("dropdown", ["Gloves"]);
+                    
+                    setTimeout(() => {
+                        // Find the OK button specifically within this card's container
+                        let okButton = Array.from(currentCard.querySelectorAll('button'))
+                                            .find(btn => btn.innerText.includes("OK"));
+                        if (okButton) okButton.click();
+                        
+                        i++;
+                        setTimeout(processNextCard, 600); 
+                    }, 600);
+                }, 600);
+            } else {
+                i++;
+                processNextCard();
+            }
+        };
+
+        processNextCard();
+    }, 1500);
 }
 
 function press(typeOfClick, arrayToPassIn) {
     let grabNodes;
+    
+    if (typeOfClick === "dropdown" || typeOfClick === "dropdown secondary") {
+        let triggers = document.querySelectorAll('.ko-dropdown-placeholder, .ko-dropdown-value, .koMultiselect-searchbar-input, .koMultiselect-searchbar');
+        triggers.forEach(t => t.click());
+    }
+
     switch (typeOfClick) {
         case "dropdown":
-            grabNodes = Array.from(document.querySelectorAll('.koSingleselect-dropDownItem'));
+            grabNodes = Array.from(document.querySelectorAll('.koSingleselect-dropDownItem, .ko-dropdown-value, .koSingleselect-dropDownItem span'));
             break;
         case "dropdown secondary":
-            grabNodes = Array.from(document.querySelectorAll('.koMultiselect-dropDownItem > *'));
+            grabNodes = Array.from(document.querySelectorAll('.koMultiselect-dropDownItem, .koMultiselect-dropDownItem span'));
             break;
         case "button":
-            grabNodes = Array.from(document.querySelectorAll(".smart-list-button-label"));
+            grabNodes = Array.from(document.querySelectorAll(".smart-list-button-label, .smart-list-button, button"));
             break;
         case "menu":
             let sections = document.getElementById("sections");
             if (sections) {
-                grabNodes = Array.from(sections.querySelectorAll('.text-padding'));
+                grabNodes = Array.from(sections.querySelectorAll('.text-padding, .form-navigation-section-caption-text'));
             }
             break;
         default:
             break;
     }
+    
     if (!grabNodes) return;
-    let nodesToClick = arrayToPassIn.map(x => grabNodes.find(node => node.textContent.trim() === x));
-    nodesToClick.forEach(node => node && node.click());
+    
+    arrayToPassIn.forEach(val => {
+        // Regex strips invisible zero-width characters that often break text matching in this UI
+        let matchingNodes = grabNodes.filter(node => node.textContent.replace(/[\u200B-\u200D\uFEFF]/g, '').trim() === val);
+        matchingNodes.forEach(node => node.click());
+    });
 }
 
 function buttonWatcher() {
@@ -146,10 +298,7 @@ function buttonWatcher() {
         if (!saveButton) return;
 
         const buttonParent = saveButton.parentElement;
-        
         if (buttonParent.querySelector(".mefirs-filler-btn-group")) return;
-
-        console.log("MEFIRS Filler: Injecting button group...");
 
         const btnGroup = document.createElement('div');
         btnGroup.className = "mefirs-filler-btn-group";
@@ -179,7 +328,6 @@ function buttonWatcher() {
 }
 
 buttonWatcher();
-
 fieldWatcher();
 
 function fieldWatcher() {
@@ -234,4 +382,4 @@ function searchDDS(currentStringField) {
         }
         return endPosition;
     }
-} //
+}
