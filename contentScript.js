@@ -1,6 +1,6 @@
 //Functions for button clicks, stores all the menus and clicks.
 
-function callEmergentCRMCNonEmergent() {
+function callEmergentMaineGeneralNonEmergent() {
 
     press("menu", ["Start Up"]);
 
@@ -55,7 +55,7 @@ function callEmergentCRMCNonEmergent() {
 
     function transportDestTab() {
 
-        press("dropdown", ["Cheyenne Regional Medical Center"]);
+        press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
 
         press("dropdown secondary", ["Closest Facility"]);
 
@@ -74,7 +74,7 @@ function callEmergentCRMCNonEmergent() {
 }
 
 
-function callNonEmergentCRMCNonEmergent() {
+function callNonEmergentMaineGeneralNonEmergent() {
 
     press("menu", ["Start Up"]);
 
@@ -129,7 +129,7 @@ function callNonEmergentCRMCNonEmergent() {
 
     function transportDestTab() {
 
-        press("dropdown", ["Cheyenne Regional Medical Center"]);
+        press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
 
         press("dropdown secondary", ["Closest Facility"]);
 
@@ -149,7 +149,7 @@ function callNonEmergentCRMCNonEmergent() {
 }
 
 
-function transferFromCRMCNonEmergentToHospital() {
+function transferFromMaineGeneralNonEmergentToHospital() {
 
     press("menu", ["Start Up"]);
 
@@ -177,7 +177,7 @@ function transferFromCRMCNonEmergentToHospital() {
 
     function responseTab() {
 
-        let responseInfoTabDropdowns = ["Transfer/Interfacility/Palliative Care", "Hospital", "Cheyenne Regional Medical Center"];
+        let responseInfoTabDropdowns = ["Transfer/Interfacility/Palliative Care", "Hospital", "MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"];
 
         let responseInfoTabButtons = ["Non-Acute [e.g., Scheduled Transfer or Standby]", "Yes", "Non-Emergent", "Single"];
 
@@ -215,7 +215,7 @@ function transferFromCRMCNonEmergentToHospital() {
 }
 
 
-function transferFromCRMCNonEmergentToFacility() {
+function transferFromMaineGeneralNonEmergentToFacility() {
 
     press("menu", ["Start Up"]);
 
@@ -243,7 +243,7 @@ function transferFromCRMCNonEmergentToFacility() {
 
     function responseTab() {
 
-        let responseInfoTabDropdowns = ["Transfer/Interfacility/Palliative Care", "Hospital", "Cheyenne Regional Medical Center"];
+        let responseInfoTabDropdowns = ["Transfer/Interfacility/Palliative Care", "Hospital", "MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"];
 
         let responseInfoTabButtons = ["Non-Acute [e.g., Scheduled Transfer or Standby]", "Yes", "Non-Emergent", "Single"];
 
@@ -468,8 +468,6 @@ function press(typeOfClick, arrayToPassIn) {
 
     let nodesToClick = arrayToPassIn.map(x => grabNodes.find(node => node.textContent === x));
 
-    //console.log(nodesToClick);
-
     nodesToClick.forEach(node => node && node.click());
 }
 
@@ -501,8 +499,8 @@ function typeInBoxes(id, valueToWrite) {
 //Actually adds the buttons to the start page
 function buttonWatcher() {
 
-    const functionArray = [callEmergentCRMCNonEmergent, callNonEmergentCRMCNonEmergent, transferFromCRMCNonEmergentToHospital, transferFromCRMCNonEmergentToFacility, liftAssist, refusalEmergent, refusalNonEmergent];
-    const buttonNames = ["Emergent to CRMC Non-Emergent", "Non-Emergent to CRMC Non-Emergent", "Transfer From CRMC Non-Emergent to Hospital", "Transfer From CRMC Non-Emergent to Facility", "Lift Assist", "Refusal Emergent", "Refusal Non-Emergent"];
+    const functionArray = [callEmergentMaineGeneralNonEmergent, callNonEmergentMaineGeneralNonEmergent, transferFromMaineGeneralNonEmergentToHospital, transferFromMaineGeneralNonEmergentToFacility, liftAssist, refusalEmergent, refusalNonEmergent];
+    const buttonNames = ["Emergent to MaineGeneral Non-Emergent", "Non-Emergent to MaineGeneral Non-Emergent", "Transfer From MaineGeneral Non-Emergent to Hospital", "Transfer From MaineGeneral Non-Emergent to Facility", "Lift Assist", "Refusal Emergent", "Refusal Non-Emergent"];
 
     function addButtons() {
         const testGrabButton = document.querySelector(".button-control");
@@ -531,6 +529,7 @@ function buttonWatcher() {
 
     //This is the checker, looks for the field and then DC's.
     function checkInnerHTML() {
+        // Note: You may need to change "Preset Value - AMR Chey Emergency Response to CRMC" to the preset value string used in the Maine system to trigger the buttons.
         const foundButton = Array.from(document.querySelectorAll("*")).find(element => element.innerHTML === "Preset Value - AMR Chey Emergency Response to CRMC");
 
         if (foundButton) {
