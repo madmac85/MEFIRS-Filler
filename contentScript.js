@@ -2,6 +2,7 @@ console.log("MEFIRS Filler: Script loaded in frame: " + window.location.href);
 
 function clearAutomatedFields() {
     setInput("Number of Patients Transported", "");
+    setInput("EMD Determinant Code", "");
 
     const targetLabels = [
         "Type of Service Requested",
@@ -140,7 +141,7 @@ function showInitialConfigPopup(onComplete) {
     unknownBtn.style.cssText = "padding:20px 30px; font-size:20px; cursor:pointer; background:#6c757d; color:white; border:none; border-radius:10px; font-weight:bold; width:48%;";
     unknownBtn.onclick = () => {
         document.body.removeChild(overlay);
-        onComplete({ isSameAddress: false, dispatchReason: null });
+        onComplete({ isSameAddress: false, dispatchReason: null, emdCode: "" });
     };
 
     const saveBtn = document.createElement('button');
@@ -151,7 +152,7 @@ function showInitialConfigPopup(onComplete) {
         const emdVal = emdInput.value.trim();
         const reason = getDispatchReason(emdVal);
         const isSame = addressSelect.value === "yes";
-        onComplete({ isSameAddress: isSame, dispatchReason: reason });
+        onComplete({ isSameAddress: isSame, dispatchReason: reason, emdCode: emdVal });
     };
 
     btnContainer.appendChild(unknownBtn);
@@ -164,10 +165,6 @@ function showInitialConfigPopup(onComplete) {
 function callEmergentMaineGeneral() {
     clearAutomatedFields();
     showInitialConfigPopup((config) => {
-        if (config.isSameAddress) {
-            press("button", ["Patient Address Same as Incident Address"]);
-        }
-        
         setTimeout(() => {
             press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
             setTimeout(() => {
@@ -193,6 +190,8 @@ function callEmergentMaineGeneral() {
             let btns = ["Emergent (Immediate Response)", "Lights and Sirens", "Single", "Not Recorded", "Distance", "None/No Delay", "Yes, Unknown if Pre-Arrival Instructions Given"];
             press("button", btns);
             
+            if (config.emdCode) setInput("EMD Determinant Code", config.emdCode);
+
             let dropdowns = ["Augusta Fire Department", "None Noted"];
             if (config.dispatchReason) dropdowns.push(config.dispatchReason);
             press("dropdown", dropdowns);
@@ -222,9 +221,7 @@ function callEmergentMaineGeneral() {
                     press("menu", ["Billing Information"]);
                     setTimeout(() => {
                         press("dropdown", ["No Insurance Identified"]);
-                        if (config.isSameAddress) {
-                            setTimeout(() => press("button", ["Find a Repeat Patient"]), 800);
-                        }
+                        setTimeout(() => patientTab(config), 800);
                     }, 800);
                 }, 800);
             }, 800);
@@ -235,8 +232,6 @@ function callEmergentMaineGeneral() {
 function callNonEmergentMaineGeneral() {
     clearAutomatedFields();
     showInitialConfigPopup((config) => {
-        if (config.isSameAddress) press("button", ["Patient Address Same as Incident Address"]);
-        
         setTimeout(() => {
             press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
             setTimeout(() => startTab(config), 800);
@@ -255,6 +250,8 @@ function callNonEmergentMaineGeneral() {
         setTimeout(() => {
             let btns = ["Emergent (Immediate Response)", "No Lights or Sirens", "Single", "Not Recorded", "Distance", "None/No Delay", "Yes, Unknown if Pre-Arrival Instructions Given"];
             press("button", btns);
+
+            if (config.emdCode) setInput("EMD Determinant Code", config.emdCode);
 
             let dropdowns = ["Augusta Fire Department", "None Noted"];
             if (config.dispatchReason) dropdowns.push(config.dispatchReason);
@@ -285,9 +282,7 @@ function callNonEmergentMaineGeneral() {
                     press("menu", ["Billing Information"]);
                     setTimeout(() => {
                         press("dropdown", ["No Insurance Identified"]);
-                        if (config.isSameAddress) {
-                            setTimeout(() => press("button", ["Find a Repeat Patient"]), 800);
-                        }
+                        setTimeout(() => patientTab(config), 800);
                     }, 800);
                 }, 800);
             }, 800);
@@ -298,8 +293,6 @@ function callNonEmergentMaineGeneral() {
 function liftAssist() {
     clearAutomatedFields();
     showInitialConfigPopup((config) => {
-        if (config.isSameAddress) press("button", ["Patient Address Same as Incident Address"]);
-        
         setTimeout(() => {
             press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
             setTimeout(() => startTab(config), 800);
@@ -318,6 +311,8 @@ function liftAssist() {
         setTimeout(() => {
             press("button", ["Emergent (Immediate Response)", "No Lights or Sirens", "Single", "Not Recorded", "Distance", "None/No Delay", "Yes, Unknown if Pre-Arrival Instructions Given"]);
             
+            if (config.emdCode) setInput("EMD Determinant Code", config.emdCode);
+
             let dropdowns = ["Augusta Fire Department", "None Noted"];
             if (config.dispatchReason) dropdowns.push(config.dispatchReason);
             press("dropdown", dropdowns);
@@ -326,10 +321,20 @@ function liftAssist() {
                 press("menu", ["Billing Information"]);
                 setTimeout(() => {
                     press("dropdown", ["No Insurance Identified"]);
-                    if (config.isSameAddress) {
-                        setTimeout(() => press("button", ["Find a Repeat Patient"]), 800);
-                    }
+                    setTimeout(() => patientTab(config), 800);
                 }, 800);
+            }, 800);
+        }, 1000);
+    }
+}
+
+function patientTab(config) {
+    if (config.isSameAddress) {
+        press("menu", ["Patient", "Patient Info", "Patient Information"]);
+        setTimeout(() => {
+            press("button", ["Patient Address Same as Incident Address"]);
+            setTimeout(() => {
+                press("button", ["Find a Repeat Patient"]);
             }, 800);
         }, 1000);
     }
