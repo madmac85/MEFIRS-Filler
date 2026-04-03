@@ -181,26 +181,31 @@ function press(typeOfClick, arrayToPassIn) {
     nodesToClick.forEach(node => node && node.click());
 }
 
-// Trigger logic to inject buttons when the sidebar header "Run Form Start" is found
+// Logic to inject the custom buttons when the "Save" button is found
 function buttonWatcher() {
     const functionArray = [callEmergentMaineGeneral, callNonEmergentMaineGeneral, liftAssist];
     const buttonNames = ["Emergent to MaineGeneral", "Non-Emergent to MaineGeneral", "Lift Assist"];
 
     function addButtons() {
-        const testGrabButton = document.querySelector(".button-control");
-        if (!testGrabButton) return;
+        // Find the container at the top where the Save/Print buttons live
+        const saveButton = Array.from(document.querySelectorAll(".button-control"))
+                                .find(el => el.textContent.includes("Save"));
+        
+        if (!saveButton) return;
 
-        const buttonParent = testGrabButton.parentElement;
+        const buttonParent = saveButton.parentElement;
+
+        // Prevent duplicate buttons
+        if (buttonParent.querySelector(".mefirs-filler-btn")) return;
 
         for (let i = 0; i < functionArray.length; i++) {
             const fn = functionArray[i];
             const buttonName = buttonNames[i];
 
             const newButton = document.createElement('button');
-            newButton.className = testGrabButton.className;
+            newButton.className = saveButton.className + " mefirs-filler-btn";
             newButton.innerHTML = buttonName;
-            newButton.style.marginLeft = "15px";
-            newButton.style.marginTop = "5px";
+            newButton.style.marginLeft = "10px";
             newButton.style.backgroundColor = "#d9534f"; // Red standout color
             newButton.style.color = "white";
             newButton.onclick = fn;
@@ -208,18 +213,8 @@ function buttonWatcher() {
         }
     }
 
-    function checkSidebarHeader() {
-        // Triggered by sidebar navigation text
-        const foundHeader = Array.from(document.querySelectorAll(".form-navigation-section-caption-text"))
-                                 .find(element => element.innerHTML.trim() === "Run Form Start");
-
-        if (foundHeader) {
-            addButtons();
-            clearInterval(intervalID);
-        }
-    }
-
-    const intervalID = setInterval(checkSidebarHeader, 1000);
+    // Continuously check for the Save button to handle partial page reloads
+    setInterval(addButtons, 1000);
 }
 
 buttonWatcher();
