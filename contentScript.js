@@ -1,4 +1,4 @@
-// Functions for button clicks, updated for MEFIRS with "Distance" response delay
+// Functions for button clicks, updated for MEFIRS with specific Maine hospital and response logic
 
 function callEmergentMaineGeneral() {
 
@@ -8,7 +8,7 @@ function callEmergentMaineGeneral() {
     setTimeout(startTab, 10);
 
     function startTab() {
-        // Based on image_8c3d09.png
+        // Based on MEFIRS UI labels
         let startTabDropdowns = ["Emergency Response (Primary Response Area)"];
         let startTabButtons = [
             "Patient Contact Made", 
@@ -27,7 +27,7 @@ function callEmergentMaineGeneral() {
     }
 
     function responseTab() {
-        // Updated to include "Distance" based on image_8c93db.png
+        // Updated to include "Distance" response delay
         let responseInfoTabButtons = [
             "Emergent (Immediate Response)", 
             "Lights and Sirens", 
@@ -44,7 +44,7 @@ function callEmergentMaineGeneral() {
     }
 
     function transportInfoTab() {
-        // Based on image_8c8f63.png
+        // Standard transport settings
         let transportButtons = [
             "Non-Emergent", 
             "No Lights or Sirens", 
@@ -60,7 +60,7 @@ function callEmergentMaineGeneral() {
     }
 
     function transportDestTab() {
-        // Based on image_8c8fa3.png
+        // Exact hospital name match for MEFIRS
         press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
         press("dropdown", ["Hospital-Emergency Department"]);
         press("button", ["Closest Facility"]);
@@ -71,7 +71,7 @@ function callEmergentMaineGeneral() {
 
     function signatureTab() {
         let signatureButton = document.querySelector('.grid-button');
-        signatureButton.click();
+        if (signatureButton) signatureButton.click();
     }
 }
 
@@ -91,7 +91,7 @@ function callNonEmergentMaineGeneral() {
     }
 
     function responseTab() {
-        // Updated to include "Distance" based on image_8c93db.png
+        // Includes Distance for non-emergent response
         let responseInfoTabButtons = [
             "Non-Emergent", 
             "No Lights or Sirens", 
@@ -124,7 +124,7 @@ function callNonEmergentMaineGeneral() {
 
     function signatureTab() {
         let signatureButton = document.querySelector('.grid-button');
-        signatureButton.click();
+        if (signatureButton) signatureButton.click();
     }
 }
 
@@ -144,7 +144,6 @@ function liftAssist() {
     }
 
     function responseTab() {
-        // Included "Distance" here as well if applicable for public assistance records
         press("button", ["Non-Emergent", "No Lights or Sirens", "None", "Distance"]);
 
         press("menu", ["Signatures"]);
@@ -153,10 +152,11 @@ function liftAssist() {
 
     function signatureTab() {
         let signatureButton = document.querySelector('.grid-button');
-        signatureButton.click();
+        if (signatureButton) signatureButton.click();
     }
 }
 
+// Press function tailored for knockoutJS elements used in MEFIRS
 function press(typeOfClick, arrayToPassIn) {
     let grabNodes;
 
@@ -181,12 +181,15 @@ function press(typeOfClick, arrayToPassIn) {
     nodesToClick.forEach(node => node && node.click());
 }
 
+// Trigger logic to inject buttons when the sidebar header "Run Form Start" is found
 function buttonWatcher() {
     const functionArray = [callEmergentMaineGeneral, callNonEmergentMaineGeneral, liftAssist];
     const buttonNames = ["Emergent to MaineGeneral", "Non-Emergent to MaineGeneral", "Lift Assist"];
 
     function addButtons() {
         const testGrabButton = document.querySelector(".button-control");
+        if (!testGrabButton) return;
+
         const buttonParent = testGrabButton.parentElement;
 
         for (let i = 0; i < functionArray.length; i++) {
@@ -198,25 +201,30 @@ function buttonWatcher() {
             newButton.innerHTML = buttonName;
             newButton.style.marginLeft = "15px";
             newButton.style.marginTop = "5px";
+            newButton.style.backgroundColor = "#d9534f"; // Red standout color
+            newButton.style.color = "white";
             newButton.onclick = fn;
             buttonParent.appendChild(newButton);
         }
     }
 
-    function checkInnerHTML() {
-        const foundButton = Array.from(document.querySelectorAll("*")).find(element => element.innerHTML === "Preset Value - No Delays");
+    function checkSidebarHeader() {
+        // Triggered by sidebar navigation text
+        const foundHeader = Array.from(document.querySelectorAll(".form-navigation-section-caption-text"))
+                                 .find(element => element.innerHTML.trim() === "Run Form Start");
 
-        if (foundButton) {
+        if (foundHeader) {
             addButtons();
             clearInterval(intervalID);
         }
     }
 
-    const intervalID = setInterval(checkInnerHTML, 1000);
+    const intervalID = setInterval(checkSidebarHeader, 1000);
 }
 
 buttonWatcher();
 
+// Logic for Narrative field monitoring using MEFIRS specific ID
 fieldWatcher();
 
 function fieldWatcher() {
@@ -234,6 +242,7 @@ function shortcutKeys() {
     let currentStringField = document.getElementById("73533");
 
     currentStringField.addEventListener("keydown", function (event) {
+        // Tab key cycles through "DDS" placeholders
         if (event.key === "Tab") {
             event.preventDefault();
             const [ddsStart, ddsEnd] = searchDDS(currentStringField);
@@ -242,6 +251,7 @@ function shortcutKeys() {
             }
         }
 
+        // Ctrl + P highlights to the next sentence end
         if (event.ctrlKey && event.key === "p") {
             event.preventDefault();
             let text = currentStringField.value;
