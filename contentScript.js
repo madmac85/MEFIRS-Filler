@@ -162,6 +162,25 @@ function showInitialConfigPopup(onComplete) {
     document.body.appendChild(overlay);
 }
 
+function setDropdownByLabel(labelName, value) {
+    if (!value) return;
+    const containers = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'));
+    const targetContainer = containers.find(el => el.innerText.includes(labelName));
+    if (targetContainer) {
+        const trigger = targetContainer.querySelector('.ko-dropdown-placeholder, .ko-dropdown-value, .koSingleselect-down-button, .koSingleselect-searchbar-input');
+        if (trigger) {
+            trigger.click();
+            setTimeout(() => {
+                const items = Array.from(document.querySelectorAll('.koSingleselect-dropDownItem, .koSingleselect-dropDownItem span'));
+                const targetItem = items.find(node => node.textContent.replace(/[\u200B-\u200D\uFEFF]/g, '').trim() === value);
+                if (targetItem) {
+                    targetItem.click();
+                }
+            }, 600);
+        }
+    }
+}
+
 function callEmergentMaineGeneral() {
     clearAutomatedFields();
     showInitialConfigPopup((config) => {
@@ -192,12 +211,16 @@ function callEmergentMaineGeneral() {
             
             if (config.emdCode) setInput("EMD Determinant Code", config.emdCode);
 
-            let dropdowns = ["Augusta Fire Department", "None Noted"];
-            if (config.dispatchReason) dropdowns.push(config.dispatchReason);
-            press("dropdown", dropdowns);
+            press("dropdown", ["Augusta Fire Department", "None Noted"]);
+            
+            if (config.dispatchReason) {
+                setDropdownByLabel("Dispatch Reason:", config.dispatchReason);
+            }
 
-            press("menu", ["Transport", "Transport Info"]);
-            setTimeout(() => transportInfoTab(config), 800);
+            setTimeout(() => {
+                press("menu", ["Transport", "Transport Info"]);
+                setTimeout(() => transportInfoTab(config), 800);
+            }, 800);
         }, 1000);
     }
 
@@ -253,12 +276,16 @@ function callNonEmergentMaineGeneral() {
 
             if (config.emdCode) setInput("EMD Determinant Code", config.emdCode);
 
-            let dropdowns = ["Augusta Fire Department", "None Noted"];
-            if (config.dispatchReason) dropdowns.push(config.dispatchReason);
-            press("dropdown", dropdowns);
+            press("dropdown", ["Augusta Fire Department", "None Noted"]);
+            
+            if (config.dispatchReason) {
+                setDropdownByLabel("Dispatch Reason:", config.dispatchReason);
+            }
 
-            press("menu", ["Transport", "Transport Info"]);
-            setTimeout(() => transportInfoTab(config), 800);
+            setTimeout(() => {
+                press("menu", ["Transport", "Transport Info"]);
+                setTimeout(() => transportInfoTab(config), 800);
+            }, 800);
         }, 1000);
     }
 
@@ -313,9 +340,11 @@ function liftAssist() {
             
             if (config.emdCode) setInput("EMD Determinant Code", config.emdCode);
 
-            let dropdowns = ["Augusta Fire Department", "None Noted"];
-            if (config.dispatchReason) dropdowns.push(config.dispatchReason);
-            press("dropdown", dropdowns);
+            press("dropdown", ["Augusta Fire Department", "None Noted"]);
+            
+            if (config.dispatchReason) {
+                setDropdownByLabel("Dispatch Reason:", config.dispatchReason);
+            }
 
             setTimeout(() => {
                 press("menu", ["Billing Information"]);
@@ -335,8 +364,8 @@ function patientTab(config) {
             press("button", ["Patient Address Same as Incident Address"]);
             setTimeout(() => {
                 press("button", ["Find a Repeat Patient"]);
-            }, 800);
-        }, 1000);
+            }, 1000);
+        }, 1200);
     }
 }
 
