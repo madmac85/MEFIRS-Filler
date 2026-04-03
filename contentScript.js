@@ -15,7 +15,8 @@ function clearAutomatedFields() {
         "Type of Transport Delay",
         "Type of Turn-Around Delay",
         "Transport Mode from Scene",
-        "EMD Performed"
+        "EMD Performed",
+        "Dispatch Reason"
     ];
 
     targetLabels.forEach(label => {
@@ -36,42 +37,125 @@ function clearAutomatedFields() {
     }
 }
 
-function showAddressPopup(onComplete) {
+function getDispatchReason(emdCode) {
+    if (!emdCode) return null;
+    let match = emdCode.match(/^(\d+)/);
+    if (!match) return null;
+    let num = parseInt(match[1], 10);
+    const map = {
+        1: "1. Abdominal Pain/Problems",
+        2: "2. Allergic Reaction/Stings",
+        3: "3. Animal Bite",
+        4: "4. Assault",
+        5: "5. Back Pain (Non-Traumatic)",
+        6: "6. Breathing Problem",
+        7: "7. Burns/Explosion",
+        8: "8. Carbon Monoxide/Hazmat/Inhalation/CBRN",
+        9: "9. Cardiac Arrest/Death",
+        10: "10. Chest Pain (Non-Traumatic)",
+        11: "11. Choking",
+        12: "12. Convulsions/Seizure",
+        13: "13. Diabetic Problem",
+        14: "14. Drowning/Diving/SCUBA Accident",
+        15: "15. Electrocution/Lightning",
+        16: "16. Eye Problem/Injury",
+        17: "17. Falls",
+        18: "18. Headache",
+        19: "19. Heart Problems/AICD",
+        20: "20. Heat/Cold Exposure",
+        21: "21. Hemorrhage/Laceration",
+        22: "22. Industrial Accident/Inaccessible Incident/Other Entrapments (Non-Traffic)",
+        23: "23. Overdose/Poisoning/Ingestion",
+        24: "24. Pregnancy/Childbirth/Miscarriage",
+        25: "25. Psychiatric/Abnormal Behavior/Suicide Attempt",
+        26: "26. Sick Person",
+        27: "27. Stab/Gunshot/Penetrating Trauma",
+        28: "28. Stroke (CVA)/Transient Ischemic Attack",
+        29: "29. Traffic/Transportation Incidents",
+        30: "30. Traumatic Injuries",
+        31: "31. Unconscious/Fainting",
+        32: "32. Unknown Problem/Person Down",
+        33: "33. Transfer/Interfacility/Palliative Care"
+    };
+    return map[num] || null;
+}
+
+function showInitialConfigPopup(onComplete) {
     const overlay = document.createElement('div');
     overlay.id = "mefirs-popup-overlay";
     overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10000; display:flex; align-items:center; justify-content:center;";
 
     const popup = document.createElement('div');
-    popup.style.cssText = "background:white; padding:40px; border-radius:15px; text-align:center; max-width:500px; width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.5);";
+    popup.style.cssText = "background:white; padding:40px; border-radius:15px; text-align:center; max-width:600px; width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.5); font-family:sans-serif;";
 
     const title = document.createElement('h2');
-    title.innerText = "Is the Patient's address the same as the incident address?";
+    title.innerText = "Call Configuration";
     title.style.marginBottom = "30px";
-    title.style.fontSize = "24px";
+    title.style.fontSize = "28px";
     popup.appendChild(title);
+
+    const emdContainer = document.createElement('div');
+    emdContainer.style.marginBottom = "25px";
+    emdContainer.style.textAlign = "left";
+    const emdLabel = document.createElement('label');
+    emdLabel.innerText = "EMD Code (Optional):";
+    emdLabel.style.fontSize = "20px";
+    emdLabel.style.fontWeight = "bold";
+    const emdInput = document.createElement('input');
+    emdInput.type = "text";
+    emdInput.placeholder = "e.g., 17-D-3 or 17D3";
+    emdInput.style.cssText = "width:100%; padding:15px; font-size:20px; margin-top:10px; border:2px solid #ccc; border-radius:8px; box-sizing:border-box;";
+    emdContainer.appendChild(emdLabel);
+    emdContainer.appendChild(emdInput);
+    popup.appendChild(emdContainer);
+
+    const addressContainer = document.createElement('div');
+    addressContainer.style.marginBottom = "40px";
+    addressContainer.style.textAlign = "left";
+    const addressLabel = document.createElement('label');
+    addressLabel.innerText = "Is Patient Address Same as Incident Address?";
+    addressLabel.style.fontSize = "20px";
+    addressLabel.style.fontWeight = "bold";
+    const addressSelect = document.createElement('select');
+    addressSelect.style.cssText = "width:100%; padding:15px; font-size:20px; margin-top:10px; border:2px solid #ccc; border-radius:8px; box-sizing:border-box; background:white;";
+    const optYes = document.createElement('option');
+    optYes.value = "yes";
+    optYes.text = "Yes";
+    const optNo = document.createElement('option');
+    optNo.value = "no";
+    optNo.text = "No / Unknown";
+    optNo.selected = true;
+    addressSelect.appendChild(optNo);
+    addressSelect.appendChild(optYes);
+    addressContainer.appendChild(addressLabel);
+    addressContainer.appendChild(addressSelect);
+    popup.appendChild(addressContainer);
 
     const btnContainer = document.createElement('div');
     btnContainer.style.display = "flex";
-    btnContainer.style.justifyContent = "space-around";
+    btnContainer.style.justifyContent = "space-between";
 
-    const yesBtn = document.createElement('button');
-    yesBtn.innerText = "Yes";
-    yesBtn.style.cssText = "padding:25px 50px; font-size:22px; cursor:pointer; background:#5cb85c; color:white; border:none; border-radius:10px; font-weight:bold;";
-    yesBtn.onclick = () => {
+    const unknownBtn = document.createElement('button');
+    unknownBtn.innerText = "Unknown / Skip";
+    unknownBtn.style.cssText = "padding:20px 30px; font-size:20px; cursor:pointer; background:#6c757d; color:white; border:none; border-radius:10px; font-weight:bold; width:48%;";
+    unknownBtn.onclick = () => {
         document.body.removeChild(overlay);
-        onComplete(true);
+        onComplete({ isSameAddress: false, dispatchReason: null });
     };
 
-    const noBtn = document.createElement('button');
-    noBtn.innerText = "No/Unknown";
-    noBtn.style.cssText = "padding:25px 50px; font-size:22px; cursor:pointer; background:#d9534f; color:white; border:none; border-radius:10px; font-weight:bold;";
-    noBtn.onclick = () => {
+    const saveBtn = document.createElement('button');
+    saveBtn.innerText = "Save";
+    saveBtn.style.cssText = "padding:20px 30px; font-size:20px; cursor:pointer; background:#5cb85c; color:white; border:none; border-radius:10px; font-weight:bold; width:48%;";
+    saveBtn.onclick = () => {
         document.body.removeChild(overlay);
-        onComplete(false);
+        const emdVal = emdInput.value.trim();
+        const reason = getDispatchReason(emdVal);
+        const isSame = addressSelect.value === "yes";
+        onComplete({ isSameAddress: isSame, dispatchReason: reason });
     };
 
-    btnContainer.appendChild(yesBtn);
-    btnContainer.appendChild(noBtn);
+    btnContainer.appendChild(unknownBtn);
+    btnContainer.appendChild(saveBtn);
     popup.appendChild(btnContainer);
     overlay.appendChild(popup);
     document.body.appendChild(overlay);
@@ -79,51 +163,54 @@ function showAddressPopup(onComplete) {
 
 function callEmergentMaineGeneral() {
     clearAutomatedFields();
-    showAddressPopup((isSameAddress) => {
-        if (isSameAddress) {
+    showInitialConfigPopup((config) => {
+        if (config.isSameAddress) {
             press("button", ["Patient Address Same as Incident Address"]);
         }
         
         setTimeout(() => {
             press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
             setTimeout(() => {
-                startTab(isSameAddress);
+                startTab(config);
             }, 800);
         }, 500);
     });
 
-    function startTab(isSameAddress) {
+    function startTab(config) {
         press("dropdown", ["Emergency Response (Primary Response Area)"]);
         let startTabButtons = ["Patient Contact Made", "Patient Evaluated and Care Provided", "Initiated and Continued Primary Care", "Transport by This EMS Unit (This Crew Only)"];
         press("button", startTabButtons);
         
         press("menu", ["Exposures & PPE"]);
         setTimeout(() => {
-            automatePPE(() => responseTab(isSameAddress));
+            automatePPE(() => responseTab(config));
         }, 1000);
     }
 
-    function responseTab(isSameAddress) {
+    function responseTab(config) {
         press("menu", ["Response", "Response Info"]);
         setTimeout(() => {
-            // Added EMD Performed value
             let btns = ["Emergent (Immediate Response)", "Lights and Sirens", "Single", "Not Recorded", "Distance", "None/No Delay", "Yes, Unknown if Pre-Arrival Instructions Given"];
             press("button", btns);
-            press("dropdown", ["Augusta Fire Department", "None Noted"]);
+            
+            let dropdowns = ["Augusta Fire Department", "None Noted"];
+            if (config.dispatchReason) dropdowns.push(config.dispatchReason);
+            press("dropdown", dropdowns);
+
             press("menu", ["Transport", "Transport Info"]);
-            setTimeout(() => transportInfoTab(isSameAddress), 800);
+            setTimeout(() => transportInfoTab(config), 800);
         }, 1000);
     }
 
-    function transportInfoTab(isSameAddress) {
+    function transportInfoTab(config) {
         setInput("Number of Patients Transported", "1");
         press("button", ["Emergent (Immediate Response)", "Non-Emergent", "No Lights or Sirens", "Ground-Ambulance", "Wheeled Stretcher", "None/No Delay"]);
         press("dropdown secondary", ["Semi-Fowlers"]);
         press("menu", ["Disposition Destination"]);
-        setTimeout(() => transportDestTab(isSameAddress), 800);
+        setTimeout(() => transportDestTab(config), 800);
     }
 
-    function transportDestTab(isSameAddress) {
+    function transportDestTab(config) {
         press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
         setTimeout(() => {
             press("dropdown", ["Hospital-Emergency Department"]);
@@ -135,7 +222,7 @@ function callEmergentMaineGeneral() {
                     press("menu", ["Billing Information"]);
                     setTimeout(() => {
                         press("dropdown", ["No Insurance Identified"]);
-                        if (isSameAddress) {
+                        if (config.isSameAddress) {
                             setTimeout(() => press("button", ["Find a Repeat Patient"]), 800);
                         }
                     }, 800);
@@ -147,43 +234,46 @@ function callEmergentMaineGeneral() {
 
 function callNonEmergentMaineGeneral() {
     clearAutomatedFields();
-    showAddressPopup((isSameAddress) => {
-        if (isSameAddress) press("button", ["Patient Address Same as Incident Address"]);
+    showInitialConfigPopup((config) => {
+        if (config.isSameAddress) press("button", ["Patient Address Same as Incident Address"]);
         
         setTimeout(() => {
             press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
-            setTimeout(() => startTab(isSameAddress), 800);
+            setTimeout(() => startTab(config), 800);
         }, 500);
     });
 
-    function startTab(isSameAddress) {
+    function startTab(config) {
         press("dropdown", ["Emergency Response (Primary Response Area)"]);
         press("button", ["Patient Contact Made", "Patient Evaluated and Care Provided", "Initiated and Continued Primary Care", "Transport by This EMS Unit (This Crew Only)"]);
         press("menu", ["Exposures & PPE"]);
-        setTimeout(() => automatePPE(() => responseTab(isSameAddress)), 1000);
+        setTimeout(() => automatePPE(() => responseTab(config)), 1000);
     }
 
-    function responseTab(isSameAddress) {
+    function responseTab(config) {
         press("menu", ["Response", "Response Info"]);
         setTimeout(() => {
-            // Added EMD Performed value
             let btns = ["Emergent (Immediate Response)", "No Lights or Sirens", "Single", "Not Recorded", "Distance", "None/No Delay", "Yes, Unknown if Pre-Arrival Instructions Given"];
             press("button", btns);
-            press("dropdown", ["Augusta Fire Department", "None Noted"]);
+
+            let dropdowns = ["Augusta Fire Department", "None Noted"];
+            if (config.dispatchReason) dropdowns.push(config.dispatchReason);
+            press("dropdown", dropdowns);
+
             press("menu", ["Transport", "Transport Info"]);
-            setTimeout(() => transportInfoTab(isSameAddress), 800);
+            setTimeout(() => transportInfoTab(config), 800);
         }, 1000);
     }
 
-    function transportInfoTab(isSameAddress) {
+    function transportInfoTab(config) {
         setInput("Number of Patients Transported", "1");
         press("button", ["Emergent (Immediate Response)", "Non-Emergent", "No Lights or Sirens", "Ground-Ambulance", "Wheeled Stretcher", "None/No Delay"]);
         press("dropdown secondary", ["Semi-Fowlers"]);
         press("menu", ["Disposition Destination"]);
-        setTimeout(() => transportDestTab(isSameAddress), 800);
+        setTimeout(() => transportDestTab(config), 800);
     }
 
-    function transportDestTab(isSameAddress) {
+    function transportDestTab(config) {
         press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
         setTimeout(() => {
             press("dropdown", ["Hospital-Emergency Department"]);
@@ -195,7 +285,7 @@ function callNonEmergentMaineGeneral() {
                     press("menu", ["Billing Information"]);
                     setTimeout(() => {
                         press("dropdown", ["No Insurance Identified"]);
-                        if (isSameAddress) {
+                        if (config.isSameAddress) {
                             setTimeout(() => press("button", ["Find a Repeat Patient"]), 800);
                         }
                     }, 800);
@@ -207,33 +297,36 @@ function callNonEmergentMaineGeneral() {
 
 function liftAssist() {
     clearAutomatedFields();
-    showAddressPopup((isSameAddress) => {
-        if (isSameAddress) press("button", ["Patient Address Same as Incident Address"]);
+    showInitialConfigPopup((config) => {
+        if (config.isSameAddress) press("button", ["Patient Address Same as Incident Address"]);
         
         setTimeout(() => {
             press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
-            setTimeout(() => startTab(isSameAddress), 800);
+            setTimeout(() => startTab(config), 800);
         }, 500);
     });
 
-    function startTab(isSameAddress) {
+    function startTab(config) {
         press("dropdown", ["Emergency Response (Primary Response Area)"]);
         press("button", ["Non-Patient Incident (Not Otherwise Listed)"]);
         press("menu", ["Exposures & PPE"]);
-        setTimeout(() => automatePPE(() => responseTab(isSameAddress)), 1000);
+        setTimeout(() => automatePPE(() => responseTab(config)), 1000);
     }
 
-    function responseTab(isSameAddress) {
+    function responseTab(config) {
         press("menu", ["Response", "Response Info"]);
         setTimeout(() => {
-            // Added EMD Performed value
             press("button", ["Emergent (Immediate Response)", "No Lights or Sirens", "Single", "Not Recorded", "Distance", "None/No Delay", "Yes, Unknown if Pre-Arrival Instructions Given"]);
-            press("dropdown", ["Augusta Fire Department", "None Noted"]);
+            
+            let dropdowns = ["Augusta Fire Department", "None Noted"];
+            if (config.dispatchReason) dropdowns.push(config.dispatchReason);
+            press("dropdown", dropdowns);
+
             setTimeout(() => {
                 press("menu", ["Billing Information"]);
                 setTimeout(() => {
                     press("dropdown", ["No Insurance Identified"]);
-                    if (isSameAddress) {
+                    if (config.isSameAddress) {
                         setTimeout(() => press("button", ["Find a Repeat Patient"]), 800);
                     }
                 }, 800);
