@@ -1,4 +1,4 @@
-console.log("MEFIRS Filler: Script loaded in frame: " + window.location.href);
+console.log("MEFIRS Filler: Script loaded in frame: " + window.location.href); //
 
 function callEmergentMaineGeneral() {
     press("menu", ["Start Up"]);
@@ -50,13 +50,6 @@ function callEmergentMaineGeneral() {
         press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
         press("dropdown", ["Hospital-Emergency Department"]);
         press("button", ["Closest Facility"]);
-        press("menu", ["Signatures"]);
-        setTimeout(signatureTab, 10);
-    }
-
-    function signatureTab() {
-        let signatureButton = document.querySelector('.grid-button');
-        if (signatureButton) signatureButton.click();
     }
 }
 
@@ -96,13 +89,6 @@ function callNonEmergentMaineGeneral() {
         press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
         press("dropdown", ["Hospital-Emergency Department"]);
         press("button", ["Closest Facility"]);
-        press("menu", ["Signatures"]);
-        setTimeout(signatureTab, 10);
-    }
-
-    function signatureTab() {
-        let signatureButton = document.querySelector('.grid-button');
-        if (signatureButton) signatureButton.click();
     }
 }
 
@@ -121,13 +107,6 @@ function liftAssist() {
 
     function responseTab() {
         press("button", ["Non-Emergent", "No Lights or Sirens", "None", "Distance"]);
-        press("menu", ["Signatures"]);
-        setTimeout(signatureTab, 10);
-    }
-
-    function signatureTab() {
-        let signatureButton = document.querySelector('.grid-button');
-        if (signatureButton) signatureButton.click();
     }
 }
 
@@ -167,9 +146,17 @@ function buttonWatcher() {
         if (!saveButton) return;
 
         const buttonParent = saveButton.parentElement;
-        if (buttonParent.querySelector(".mefirs-filler-btn")) return;
+        
+        if (buttonParent.querySelector(".mefirs-filler-btn-group")) return;
 
-        console.log("MEFIRS Filler: Found Save button. Injecting custom buttons...");
+        console.log("MEFIRS Filler: Injecting button group...");
+
+        const btnGroup = document.createElement('div');
+        btnGroup.className = "mefirs-filler-btn-group";
+        btnGroup.style.display = "inline-flex";
+        btnGroup.style.flexWrap = "nowrap";
+        btnGroup.style.marginLeft = "10px";
+        btnGroup.style.verticalAlign = "middle";
 
         for (let i = 0; i < functionArray.length; i++) {
             const fn = functionArray[i];
@@ -178,12 +165,15 @@ function buttonWatcher() {
             const newButton = document.createElement('button');
             newButton.className = saveButton.className + " mefirs-filler-btn";
             newButton.innerHTML = buttonName;
-            newButton.style.marginLeft = "10px";
+            newButton.style.marginLeft = "5px";
             newButton.style.backgroundColor = "#d9534f"; 
             newButton.style.color = "white";
+            newButton.style.whiteSpace = "nowrap";
             newButton.onclick = fn;
-            buttonParent.appendChild(newButton);
+            btnGroup.appendChild(newButton);
         }
+        
+        buttonParent.appendChild(btnGroup);
     }
     setInterval(addButtons, 2000);
 }
@@ -244,4 +234,4 @@ function searchDDS(currentStringField) {
         }
         return endPosition;
     }
-}
+} //
