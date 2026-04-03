@@ -555,7 +555,7 @@ fieldWatcher();
 function fieldWatcher() {
     // This is the checker, looks for the field and then starts textInput.
     function checkForField() {
-        const foundField = document.getElementById("80724");
+        const foundField = document.getElementById("73533");
 
         if (foundField) {
             console.log("found field");
@@ -573,7 +573,7 @@ function fieldWatcher() {
 //Stores keyboard shortcuts
 function shortcutKeys() {
 
-    let currentStringField = document.getElementById("80724");
+    let currentStringField = document.getElementById("73533");
 
     currentStringField.addEventListener("keydown", function (event) {
 
