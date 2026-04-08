@@ -70,6 +70,9 @@ async function pressButton(names, { timeout = 3000 } = {}) {
     );
     if (!appeared) { warn('pressButton: none of [' + names.join(', ') + '] found'); return; }
 
+    // Brief wait to let remaining buttons on the page finish rendering
+    await sleep(400);
+
     const nodes = Array.from(document.querySelectorAll('.smart-list-button-label, .smart-list-button'));
     for (const name of names) {
         const target = nodes.find(n => cleanText(n.textContent) === name);
@@ -183,6 +186,33 @@ async function setDropdownByLabel(labelName, value, { timeout = 5000 } = {}) {
 }
 
 /**
+ * Like setDropdownByLabel, but for KO multi-select dropdowns.
+ * Finds the container by label, opens its multi-select trigger,
+ * then waits for the target item to appear before clicking.
+ */
+async function setMultiselectByLabel(labelName, value, { timeout = 5000 } = {}) {
+    if (!value) return;
+    const container = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
+        .find(el => el.innerText.includes(labelName));
+    if (!container) { warn('setMultiselectByLabel: container for "' + labelName + '" not found'); return; }
+
+    const trigger = container.querySelector(
+        '.koMultiselect-searchbar-input, .koMultiselect-down-button, .koMultiselect-searchbar'
+    );
+    if (!trigger) { warn('setMultiselectByLabel: trigger for "' + labelName + '" not found'); return; }
+
+    trigger.click();
+    const item = await waitForElement(
+        () => Array.from(document.querySelectorAll(
+            '.koMultiselect-dropDownItem, .koMultiselect-dropDownItem span'
+        )).find(n => cleanText(n.textContent) === value),
+        { timeout, interval: 80 }
+    );
+    if (item) { item.click(); log('setMultiselectByLabel: "' + labelName + '" = "' + value + '"'); }
+    else { warn('setMultiselectByLabel: "' + value + '" not found for "' + labelName + '"'); }
+}
+
+/**
  * Set a text input value by finding the input inside its label container.
  * Fires input/change/blur events so KnockoutJS bindings pick up the change.
  */
@@ -279,13 +309,15 @@ function getDispatchReason(emdCode) {
         24: '24. Pregnancy/Childbirth/Miscarriage',
         25: '25. Psychiatric/Abnormal Behavior/Suicide Attempt',
         26: '26. Sick Person',
-        27: '27. Stab/Gunshot/Penetrating Trauma',
-        28: '28. Stroke (CVA)/Transient Ischemic Attack',
-        29: '29. Traffic/Transportation Incidents',
-        30: '30. Traumatic Injuries',
-        31: '31. Unconscious/Fainting',
+        27: '27. Stab/Gunshot Wound/Penetrating Trauma',
+        28: '28. Stroke/CVA/TIA',
+        29: '29. Traffic/Transportation Incident',
+        30: '30. Traumatic Injury',
+        31: '31. Unconscious/Fainting/Near-Fainting',
         32: '32. Unknown Problem/Person Down',
-        33: '33. Transfer/Interfacility/Palliative Care'
+        33: '33. Transfer/Interfacility/Palliative Care',
+        34: '34. Automated Crash Notification',
+        37: '37. Interfacility Evaluation/Transfer'
     };
     return map[parseInt(match[1], 10)] || null;
 }
@@ -398,10 +430,24 @@ async function automatePPE(nextStepCallback) {
 
     for (let i = 0; i < cards.length; i++) {
         const card = cards[i];
-        const trigger = card.querySelector(
-            '.koMultiselect-searchbar, .koMultiselect-down-button, input.koMultiselect-searchbar-input'
-        );
-        if (!trigger) { log('automatePPE: no trigger on card ' + i + ', skipping'); continue; }
+
+        // Find the PPE-specific multi-select by locating the container labeled
+        // "Personal Protective Equipment Used" within this card
+        const ppeContainers = Array.from(card.querySelectorAll('.single-row-control, .ko-grid-column'));
+        const ppeContainer = ppeContainers.find(el => el.innerText.includes('Personal Protective Equipment Used'));
+        let trigger;
+        if (ppeContainer) {
+            trigger = ppeContainer.querySelector(
+                '.koMultiselect-searchbar-input, .koMultiselect-down-button, .koMultiselect-searchbar'
+            );
+        }
+        // Fallback: try first multi-select trigger in the card
+        if (!trigger) {
+            trigger = card.querySelector(
+                '.koMultiselect-searchbar, .koMultiselect-down-button, input.koMultiselect-searchbar-input'
+            );
+        }
+        if (!trigger) { log('automatePPE: no PPE trigger on card ' + i + ', skipping'); continue; }
 
         trigger.click();
         const glovesOption = await waitForElement(
@@ -415,7 +461,7 @@ async function automatePPE(nextStepCallback) {
             glovesOption.click();
             await sleep(400);
             const okButton = Array.from(card.querySelectorAll('button, .button-control'))
-                .find(btn => cleanText(btn.innerText) === 'OK');
+                .find(btn => cleanText(btn.innerText).includes('OK'));
             if (okButton) { okButton.click(); log('automatePPE: card ' + i + ' done'); }
             else { warn('automatePPE: OK button not found on card ' + i); }
             await sleep(500);
@@ -430,21 +476,21 @@ async function automatePPE(nextStepCallback) {
 // ─── Shared Tab Handlers ───────────────────────────────────────────────────────
 
 async function sharedTransportDestTab(config) {
-    await pressDropdown(['MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH']);
-    await pressDropdown(['Hospital-Emergency Department']);
+    await setDropdownByLabel('Destination/Transferred To', 'MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH');
+    await setDropdownByLabel('Destination Type', 'Hospital-Emergency Department');
     await pressButton(['Closest Facility', 'Wheeled Stretcher']);
     await pressButton(['Add']);
-    await pressDropdown(['Emergency Department']);
+    await setDropdownByLabel('Hospital Designation', 'Emergency Department');
     await pressMenu(['Billing Information']);
     await sleep(400);
-    await pressDropdown(['No Insurance Identified']);
+    await setDropdownByLabel('Primary Method of Payment', 'No Insurance Identified');
     await patientTab(config);
 }
 
 async function sharedTransportInfoTab(config) {
     setInput('Number of Patients Transported', '1');
     await pressButton(['Non-Emergent', 'No Lights or Sirens', 'Ground-Ambulance', 'Wheeled Stretcher', 'None/No Delay']);
-    await pressDropdownSecondary(['Semi-Fowlers']);
+    await setMultiselectByLabel('Patient Position', 'Semi-Fowlers');
     await pressMenu(['Disposition Destination']);
     await sleep(400);
     await sharedTransportDestTab(config);
@@ -459,7 +505,7 @@ function callEmergentMaineGeneral() {
         await sleep(400);
 
         // Start-Up tab
-        await pressDropdown(['Emergency Response (Primary Response Area)']);
+        await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
         await pressButton(['Patient Contact Made', 'Patient Evaluated and Care Provided',
             'Initiated and Continued Primary Care', 'Transport by This EMS Unit (This Crew Only)']);
         await pressMenu(['Exposures & PPE']);
@@ -472,8 +518,8 @@ function callEmergentMaineGeneral() {
                 'Not Recorded', 'Distance', 'None/No Delay',
                 'Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
-            await pressDropdown(['Augusta Fire Department', 'None Noted']);
-            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason:', config.dispatchReason);
+            await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
+            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
 
             // Transport tab
             await pressMenu(['Transport', 'Transport Info']);
@@ -481,7 +527,7 @@ function callEmergentMaineGeneral() {
             setInput('Number of Patients Transported', '1');
             await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens',
                 'Ground-Ambulance', 'Wheeled Stretcher', 'None/No Delay']);
-            await pressDropdownSecondary(['Semi-Fowlers']);
+            await setMultiselectByLabel('Patient Position', 'Semi-Fowlers');
             await pressMenu(['Disposition Destination']);
             await sleep(400);
             await sharedTransportDestTab(config);
@@ -498,7 +544,7 @@ function callNonEmergentMaineGeneral() {
         await sleep(400);
 
         // Start-Up tab
-        await pressDropdown(['Emergency Response (Primary Response Area)']);
+        await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
         await pressButton(['Patient Contact Made', 'Patient Evaluated and Care Provided',
             'Initiated and Continued Primary Care', 'Transport by This EMS Unit (This Crew Only)']);
         await pressMenu(['Exposures & PPE']);
@@ -511,8 +557,8 @@ function callNonEmergentMaineGeneral() {
                 'Not Recorded', 'Distance', 'None/No Delay',
                 'Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
-            await pressDropdown(['Augusta Fire Department', 'None Noted']);
-            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason:', config.dispatchReason);
+            await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
+            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
 
             // Transport tab
             await pressMenu(['Transport', 'Transport Info']);
@@ -531,7 +577,7 @@ function liftAssist() {
         await sleep(400);
 
         // Start-Up tab
-        await pressDropdown(['Emergency Response (Primary Response Area)']);
+        await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
         await pressButton(['Non-Patient Incident (Not Otherwise Listed)']);
         await pressMenu(['Exposures & PPE']);
         await sleep(500);
@@ -543,13 +589,13 @@ function liftAssist() {
                 'Not Recorded', 'Distance', 'None/No Delay',
                 'Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
-            await pressDropdown(['Augusta Fire Department', 'None Noted']);
-            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason:', config.dispatchReason);
+            await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
+            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
 
             // Billing (no transport for lift assist)
             await pressMenu(['Billing Information']);
             await sleep(400);
-            await pressDropdown(['No Insurance Identified']);
+            await setDropdownByLabel('Primary Method of Payment', 'No Insurance Identified');
             await patientTab(config);
         });
     });
