@@ -1,131 +1,340 @@
-console.log("MEFIRS Filler: Script loaded in frame: " + window.location.href);
+console.log('[MEFIRS Filler] Script loaded in frame: ' + window.location.href);
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+
+/**
+ * Wait for a DOM element. selectorOrFn can be a CSS selector string or a
+ * function that returns the element (or null/undefined if not ready).
+ * Resolves with the element, or null on timeout.
+ */
+function waitForElement(selectorOrFn, { timeout = 5000, interval = 100 } = {}) {
+    return new Promise(resolve => {
+        const check = typeof selectorOrFn === 'function'
+            ? selectorOrFn
+            : () => document.querySelector(selectorOrFn);
+
+        const found = check();
+        if (found) { resolve(found); return; }
+
+        const deadline = Date.now() + timeout;
+        const id = setInterval(() => {
+            const el = check();
+            if (el) { clearInterval(id); resolve(el); return; }
+            if (Date.now() > deadline) { clearInterval(id); resolve(null); }
+        }, interval);
+    });
+}
+
+function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+}
+
+function cleanText(t) {
+    return (t || '').replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+}
+
+function log(msg)  { console.log('[MEFIRS Filler] ' + msg); }
+function warn(msg) { console.warn('[MEFIRS Filler] WARNING: ' + msg); }
+
+// ─── Core Interaction Primitives ───────────────────────────────────────────────
+
+/**
+ * Click a menu/section navigation item. Tries each name as a fallback until
+ * one is found. Waits for the #sections container to be present first.
+ */
+async function pressMenu(names) {
+    const sections = await waitForElement('#sections', { timeout: 6000 });
+    if (!sections) { warn('pressMenu: #sections container not found'); return; }
+
+    for (const name of names) {
+        const nodes = Array.from(sections.querySelectorAll(
+            '.text-padding, .form-navigation-section-caption-text'
+        ));
+        const target = nodes.find(n => cleanText(n.textContent) === name);
+        if (target) { target.click(); log('pressMenu: "' + name + '"'); return; }
+    }
+    warn('pressMenu: none found in [' + names.join(', ') + ']');
+}
+
+/**
+ * Click smart-list toggle buttons. Tries to click ALL names in the list
+ * (they are independent toggle selections, not fallbacks).
+ * Waits for at least one button from the list to appear before clicking.
+ */
+async function pressButton(names, { timeout = 3000 } = {}) {
+    // Wait until at least one button from the list exists on the page
+    const appeared = await waitForElement(
+        () => Array.from(document.querySelectorAll('.smart-list-button-label, .smart-list-button'))
+            .find(n => names.some(name => cleanText(n.textContent) === name)),
+        { timeout }
+    );
+    if (!appeared) { warn('pressButton: none of [' + names.join(', ') + '] found'); return; }
+
+    const nodes = Array.from(document.querySelectorAll('.smart-list-button-label, .smart-list-button'));
+    for (const name of names) {
+        const target = nodes.find(n => cleanText(n.textContent) === name);
+        if (target) { target.click(); log('pressButton: "' + name + '"'); }
+    }
+}
+
+/**
+ * Select a value from a KO single-select dropdown.
+ * For each name in the array (treated as independent selections, not fallbacks):
+ * opens visible dropdown triggers one at a time until the item appears,
+ * then clicks it. Does NOT blast-click all triggers on the page.
+ */
+async function pressDropdown(names, { triggerTimeout = 1500, itemTimeout = 5000 } = {}) {
+    for (const name of names) {
+        // Check if item is already visible in an already-open dropdown
+        let item = findDropdownItem('single', name);
+        if (item) { item.click(); log('pressDropdown: "' + name + '" (already open)'); continue; }
+
+        // Open visible triggers one at a time until the target item appears
+        const triggers = Array.from(document.querySelectorAll(
+            '.ko-dropdown-placeholder, .koSingleselect-down-button, .koSingleselect-searchbar-input'
+        )).filter(el => el.offsetParent !== null);
+
+        let found = false;
+        for (const trigger of triggers) {
+            trigger.click();
+            item = await waitForElement(
+                () => findDropdownItem('single', name),
+                { timeout: triggerTimeout, interval: 80 }
+            );
+            if (item) {
+                item.click();
+                log('pressDropdown: "' + name + '"');
+                found = true;
+                break;
+            }
+            // Close this trigger before trying the next
+            document.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+            await sleep(120);
+        }
+        if (!found) warn('pressDropdown: "' + name + '" not found in any dropdown');
+    }
+}
+
+/**
+ * Select a value from a KO multi-select dropdown.
+ */
+async function pressDropdownSecondary(names, { triggerTimeout = 1500 } = {}) {
+    for (const name of names) {
+        let item = findDropdownItem('multi', name);
+        if (item) { item.click(); log('pressDropdownSecondary: "' + name + '" (already open)'); continue; }
+
+        const triggers = Array.from(document.querySelectorAll(
+            '.koMultiselect-searchbar-input, .koMultiselect-down-button, .koMultiselect-searchbar'
+        )).filter(el => el.offsetParent !== null);
+
+        let found = false;
+        for (const trigger of triggers) {
+            trigger.click();
+            item = await waitForElement(
+                () => findDropdownItem('multi', name),
+                { timeout: triggerTimeout, interval: 80 }
+            );
+            if (item) {
+                item.click();
+                log('pressDropdownSecondary: "' + name + '"');
+                found = true;
+                break;
+            }
+            document.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+            await sleep(120);
+        }
+        if (!found) warn('pressDropdownSecondary: "' + name + '" not found');
+    }
+}
+
+/** Find a visible KO dropdown item by exact text. */
+function findDropdownItem(type, name) {
+    const sel = type === 'single'
+        ? '.koSingleselect-dropDownItem, .koSingleselect-dropDownItem span'
+        : '.koMultiselect-dropDownItem, .koMultiselect-dropDownItem span';
+    return Array.from(document.querySelectorAll(sel))
+        .find(n => cleanText(n.textContent) === name) || null;
+}
+
+/**
+ * Find a field container by its label text, open that field's dropdown,
+ * then wait for and click the target value. Use this when you know the label.
+ */
+async function setDropdownByLabel(labelName, value, { timeout = 5000 } = {}) {
+    if (!value) return;
+    const container = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
+        .find(el => el.innerText.includes(labelName));
+    if (!container) { warn('setDropdownByLabel: container for "' + labelName + '" not found'); return; }
+
+    const trigger = container.querySelector(
+        '.ko-dropdown-placeholder, .ko-dropdown-value, .koSingleselect-down-button, .koSingleselect-searchbar-input'
+    );
+    if (!trigger) { warn('setDropdownByLabel: trigger for "' + labelName + '" not found'); return; }
+
+    trigger.click();
+    const item = await waitForElement(
+        () => Array.from(document.querySelectorAll(
+            '.koSingleselect-dropDownItem, .koSingleselect-dropDownItem span'
+        )).find(n => cleanText(n.textContent) === value),
+        { timeout, interval: 80 }
+    );
+    if (item) { item.click(); log('setDropdownByLabel: "' + labelName + '" = "' + value + '"'); }
+    else { warn('setDropdownByLabel: "' + value + '" not found for "' + labelName + '"'); }
+}
+
+/**
+ * Set a text input value by finding the input inside its label container.
+ * Fires input/change/blur events so KnockoutJS bindings pick up the change.
+ */
+function setInput(labelName, value) {
+    const inputs = Array.from(document.querySelectorAll('input'));
+    const target = inputs.find(input => {
+        const parent = input.closest('.ko-grid-column, .single-row-control');
+        return parent && parent.innerText.includes(labelName);
+    });
+    if (target) {
+        target.value = value;
+        ['input', 'change', 'blur'].forEach(ev =>
+            target.dispatchEvent(new Event(ev, { bubbles: true }))
+        );
+        log('setInput: "' + labelName + '" = "' + value + '"');
+    } else {
+        warn('setInput: input for "' + labelName + '" not found');
+    }
+}
+
+// ─── Clear Automated Fields ────────────────────────────────────────────────────
 
 function clearAutomatedFields() {
-    setInput("Number of Patients Transported", "");
-    setInput("EMD Determinant Code", "");
+    setInput('Number of Patients Transported', '');
+    setInput('EMD Determinant Code', '');
 
     const targetLabels = [
-        "Type of Service Requested",
-        "Vehicle Dispatch Location",
-        "Barriers to Patient Care",
-        "Destination/Transferred To",
-        "Reason for Choosing Destination",
-        "Primary Method of Payment",
-        "Type of Dispatch Delay",
-        "Type of Response Delay",
-        "Type of Transport Delay",
-        "Type of Turn-Around Delay",
-        "Transport Mode from Scene",
-        "EMD Performed",
-        "Dispatch Reason"
+        'Type of Service Requested',
+        'Vehicle Dispatch Location',
+        'Barriers to Patient Care',
+        'Destination/Transferred To',
+        'Reason for Choosing Destination',
+        'Primary Method of Payment',
+        'Type of Dispatch Delay',
+        'Type of Response Delay',
+        'Type of Transport Delay',
+        'Type of Turn-Around Delay',
+        'Transport Mode from Scene',
+        'EMD Performed',
+        'Dispatch Reason'
     ];
 
     targetLabels.forEach(label => {
         const fieldContainer = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
-                                    .find(el => el.innerText.includes(label));
+            .find(el => el.innerText.includes(label));
         if (fieldContainer) {
-            const clearIcon = fieldContainer.querySelector('.fa-times, .fa-close, .koSingleselect-selectedItem-clear, .koMultiselect-selectedItem-clear, .fa-minus-circle');
+            const clearIcon = fieldContainer.querySelector(
+                '.fa-times, .fa-close, .koSingleselect-selectedItem-clear, ' +
+                '.koMultiselect-selectedItem-clear, .fa-minus-circle'
+            );
             if (clearIcon) clearIcon.click();
         }
     });
 
     const exposuresSection = Array.from(document.querySelectorAll('.ko-grid-container, #sections'))
-                                  .find(el => el.innerText.includes("Exposures & PPE"));
+        .find(el => el.innerText.includes('Exposures & PPE'));
     if (exposuresSection) {
-        const ppeClearButtons = Array.from(exposuresSection.querySelectorAll('.fa-times, .fa-close'))
-                                     .filter(btn => btn.closest('.single-row-control, .ko-grid-column'));
-        ppeClearButtons.forEach(btn => btn.click());
+        Array.from(exposuresSection.querySelectorAll('.fa-times, .fa-close'))
+            .filter(btn => btn.closest('.single-row-control, .ko-grid-column'))
+            .forEach(btn => btn.click());
     }
 }
 
+// ─── Dispatch Reason Map ───────────────────────────────────────────────────────
+
 function getDispatchReason(emdCode) {
     if (!emdCode) return null;
-    let match = emdCode.match(/^(\d+)/);
+    const match = emdCode.match(/^(\d+)/);
     if (!match) return null;
-    let num = parseInt(match[1], 10);
     const map = {
-        1: "1. Abdominal Pain/Problems",
-        2: "2. Allergic Reaction/Stings",
-        3: "3. Animal Bite",
-        4: "4. Assault",
-        5: "5. Back Pain (Non-Traumatic)",
-        6: "6. Breathing Problem",
-        7: "7. Burns/Explosion",
-        8: "8. Carbon Monoxide/Hazmat/Inhalation/CBRN",
-        9: "9. Cardiac Arrest/Death",
-        10: "10. Chest Pain (Non-Traumatic)",
-        11: "11. Choking",
-        12: "12. Convulsions/Seizure",
-        13: "13. Diabetic Problem",
-        14: "14. Drowning/Diving/SCUBA Accident",
-        15: "15. Electrocution/Lightning",
-        16: "16. Eye Problem/Injury",
-        17: "17. Falls",
-        18: "18. Headache",
-        19: "19. Heart Problems/AICD",
-        20: "20. Heat/Cold Exposure",
-        21: "21. Hemorrhage/Laceration",
-        22: "22. Industrial Accident/Inaccessible Incident/Other Entrapments (Non-Traffic)",
-        23: "23. Overdose/Poisoning/Ingestion",
-        24: "24. Pregnancy/Childbirth/Miscarriage",
-        25: "25. Psychiatric/Abnormal Behavior/Suicide Attempt",
-        26: "26. Sick Person",
-        27: "27. Stab/Gunshot/Penetrating Trauma",
-        28: "28. Stroke (CVA)/Transient Ischemic Attack",
-        29: "29. Traffic/Transportation Incidents",
-        30: "30. Traumatic Injuries",
-        31: "31. Unconscious/Fainting",
-        32: "32. Unknown Problem/Person Down",
-        33: "33. Transfer/Interfacility/Palliative Care"
+        1: '1. Abdominal Pain/Problems',
+        2: '2. Allergic Reaction/Stings',
+        3: '3. Animal Bite',
+        4: '4. Assault',
+        5: '5. Back Pain (Non-Traumatic)',
+        6: '6. Breathing Problem',
+        7: '7. Burns/Explosion',
+        8: '8. Carbon Monoxide/Hazmat/Inhalation/CBRN',
+        9: '9. Cardiac Arrest/Death',
+        10: '10. Chest Pain (Non-Traumatic)',
+        11: '11. Choking',
+        12: '12. Convulsions/Seizure',
+        13: '13. Diabetic Problem',
+        14: '14. Drowning/Diving/SCUBA Accident',
+        15: '15. Electrocution/Lightning',
+        16: '16. Eye Problem/Injury',
+        17: '17. Falls',
+        18: '18. Headache',
+        19: '19. Heart Problems/AICD',
+        20: '20. Heat/Cold Exposure',
+        21: '21. Hemorrhage/Laceration',
+        22: '22. Industrial Accident/Inaccessible Incident/Other Entrapments (Non-Traffic)',
+        23: '23. Overdose/Poisoning/Ingestion',
+        24: '24. Pregnancy/Childbirth/Miscarriage',
+        25: '25. Psychiatric/Abnormal Behavior/Suicide Attempt',
+        26: '26. Sick Person',
+        27: '27. Stab/Gunshot/Penetrating Trauma',
+        28: '28. Stroke (CVA)/Transient Ischemic Attack',
+        29: '29. Traffic/Transportation Incidents',
+        30: '30. Traumatic Injuries',
+        31: '31. Unconscious/Fainting',
+        32: '32. Unknown Problem/Person Down',
+        33: '33. Transfer/Interfacility/Palliative Care'
     };
-    return map[num] || null;
+    return map[parseInt(match[1], 10)] || null;
 }
+
+// ─── Config Popup ──────────────────────────────────────────────────────────────
 
 function showInitialConfigPopup(onComplete) {
     const overlay = document.createElement('div');
-    overlay.id = "mefirs-popup-overlay";
-    overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10000; display:flex; align-items:center; justify-content:center;";
+    overlay.id = 'mefirs-popup-overlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;' +
+        'background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;';
 
     const popup = document.createElement('div');
-    popup.style.cssText = "background:white; padding:40px; border-radius:15px; text-align:center; max-width:600px; width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.5); font-family:sans-serif;";
+    popup.style.cssText = 'background:white;padding:40px;border-radius:15px;text-align:center;' +
+        'max-width:600px;width:90%;box-shadow:0 10px 25px rgba(0,0,0,0.5);font-family:sans-serif;';
 
     const title = document.createElement('h2');
-    title.innerText = "Call Configuration";
-    title.style.marginBottom = "30px";
-    title.style.fontSize = "28px";
+    title.innerText = 'Call Configuration';
+    title.style.cssText = 'margin-bottom:30px;font-size:28px;';
     popup.appendChild(title);
 
+    // EMD Code input
     const emdContainer = document.createElement('div');
-    emdContainer.style.marginBottom = "25px";
-    emdContainer.style.textAlign = "left";
+    emdContainer.style.cssText = 'margin-bottom:25px;text-align:left;';
     const emdLabel = document.createElement('label');
-    emdLabel.innerText = "EMD Code (Optional):";
-    emdLabel.style.fontSize = "20px";
-    emdLabel.style.fontWeight = "bold";
+    emdLabel.innerText = 'EMD Code (Optional):';
+    emdLabel.style.cssText = 'font-size:20px;font-weight:bold;';
     const emdInput = document.createElement('input');
-    emdInput.type = "text";
-    emdInput.placeholder = "e.g., 17-D-3 or 17D3";
-    emdInput.style.cssText = "width:100%; padding:15px; font-size:20px; margin-top:10px; border:2px solid #ccc; border-radius:8px; box-sizing:border-box;";
+    emdInput.type = 'text';
+    emdInput.placeholder = 'e.g., 17-D-3 or 17D3';
+    emdInput.style.cssText = 'width:100%;padding:15px;font-size:20px;margin-top:10px;' +
+        'border:2px solid #ccc;border-radius:8px;box-sizing:border-box;';
     emdContainer.appendChild(emdLabel);
     emdContainer.appendChild(emdInput);
     popup.appendChild(emdContainer);
 
+    // Address select
     const addressContainer = document.createElement('div');
-    addressContainer.style.marginBottom = "40px";
-    addressContainer.style.textAlign = "left";
+    addressContainer.style.cssText = 'margin-bottom:40px;text-align:left;';
     const addressLabel = document.createElement('label');
-    addressLabel.innerText = "Is Patient Address Same as Incident Address?";
-    addressLabel.style.fontSize = "20px";
-    addressLabel.style.fontWeight = "bold";
+    addressLabel.innerText = 'Is Patient Address Same as Incident Address?';
+    addressLabel.style.cssText = 'font-size:20px;font-weight:bold;';
     const addressSelect = document.createElement('select');
-    addressSelect.style.cssText = "width:100%; padding:15px; font-size:20px; margin-top:10px; border:2px solid #ccc; border-radius:8px; box-sizing:border-box; background:white;";
+    addressSelect.style.cssText = 'width:100%;padding:15px;font-size:20px;margin-top:10px;' +
+        'border:2px solid #ccc;border-radius:8px;box-sizing:border-box;background:white;';
+    const optNo  = document.createElement('option');
+    optNo.value = 'no';  optNo.text = 'No / Unknown'; optNo.selected = true;
     const optYes = document.createElement('option');
-    optYes.value = "yes";
-    optYes.text = "Yes";
-    const optNo = document.createElement('option');
-    optNo.value = "no";
-    optNo.text = "No / Unknown";
-    optNo.selected = true;
+    optYes.value = 'yes'; optYes.text = 'Yes';
     addressSelect.appendChild(optNo);
     addressSelect.appendChild(optYes);
     addressContainer.appendChild(addressLabel);
@@ -133,397 +342,306 @@ function showInitialConfigPopup(onComplete) {
     popup.appendChild(addressContainer);
 
     const btnContainer = document.createElement('div');
-    btnContainer.style.display = "flex";
-    btnContainer.style.justifyContent = "space-between";
+    btnContainer.style.cssText = 'display:flex;justify-content:space-between;';
+
+    const finish = (emdVal) => {
+        document.body.removeChild(overlay);
+        onComplete({
+            isSameAddress:   addressSelect.value === 'yes',
+            dispatchReason:  getDispatchReason(emdVal),
+            emdCode:         emdVal
+        });
+    };
 
     const unknownBtn = document.createElement('button');
-    unknownBtn.innerText = "Unknown / Skip";
-    unknownBtn.style.cssText = "padding:20px 30px; font-size:20px; cursor:pointer; background:#6c757d; color:white; border:none; border-radius:10px; font-weight:bold; width:48%;";
-    unknownBtn.onclick = () => {
-        document.body.removeChild(overlay);
-        onComplete({ isSameAddress: false, dispatchReason: null, emdCode: "" });
-    };
+    unknownBtn.innerText = 'Unknown / Skip';
+    unknownBtn.style.cssText = 'padding:20px 30px;font-size:20px;cursor:pointer;background:#6c757d;' +
+        'color:white;border:none;border-radius:10px;font-weight:bold;width:48%;';
+    unknownBtn.onclick = () => finish('');
 
     const saveBtn = document.createElement('button');
-    saveBtn.innerText = "Save";
-    saveBtn.style.cssText = "padding:20px 30px; font-size:20px; cursor:pointer; background:#5cb85c; color:white; border:none; border-radius:10px; font-weight:bold; width:48%;";
-    saveBtn.onclick = () => {
-        document.body.removeChild(overlay);
-        const emdVal = emdInput.value.trim();
-        const reason = getDispatchReason(emdVal);
-        const isSame = addressSelect.value === "yes";
-        onComplete({ isSameAddress: isSame, dispatchReason: reason, emdCode: emdVal });
-    };
+    saveBtn.innerText = 'Save';
+    saveBtn.style.cssText = 'padding:20px 30px;font-size:20px;cursor:pointer;background:#5cb85c;' +
+        'color:white;border:none;border-radius:10px;font-weight:bold;width:48%;';
+    saveBtn.onclick = () => finish(emdInput.value.trim());
+
+    // Allow Enter key to submit
+    emdInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveBtn.click(); });
 
     btnContainer.appendChild(unknownBtn);
     btnContainer.appendChild(saveBtn);
     popup.appendChild(btnContainer);
     overlay.appendChild(popup);
     document.body.appendChild(overlay);
+    emdInput.focus();
 }
 
-function setDropdownByLabel(labelName, value) {
-    if (!value) return;
-    const containers = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'));
-    const targetContainer = containers.find(el => el.innerText.includes(labelName));
-    if (targetContainer) {
-        const trigger = targetContainer.querySelector('.ko-dropdown-placeholder, .ko-dropdown-value, .koSingleselect-down-button, .koSingleselect-searchbar-input');
-        if (trigger) {
-            trigger.click();
-            setTimeout(() => {
-                const items = Array.from(document.querySelectorAll('.koSingleselect-dropDownItem, .koSingleselect-dropDownItem span'));
-                const targetItem = items.find(node => node.textContent.replace(/[\u200B-\u200D\uFEFF]/g, '').trim() === value);
-                if (targetItem) {
-                    targetItem.click();
-                }
-            }, 600);
+// ─── PPE Automation ────────────────────────────────────────────────────────────
+
+async function automatePPE(nextStepCallback) {
+    await pressButton(['Add All Crew']);
+
+    // Wait for crew cards to load
+    const firstCard = await waitForElement(
+        () => Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
+            .find(el => el.innerText.includes('EMS Professional (Crew Member) ID:')),
+        { timeout: 4000 }
+    );
+    if (!firstCard) {
+        log('automatePPE: no crew cards found, skipping');
+        nextStepCallback();
+        return;
+    }
+
+    const cards = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
+        .filter(el => el.innerText.includes('EMS Professional (Crew Member) ID:'));
+
+    for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        const trigger = card.querySelector(
+            '.koMultiselect-searchbar, .koMultiselect-down-button, input.koMultiselect-searchbar-input'
+        );
+        if (!trigger) { log('automatePPE: no trigger on card ' + i + ', skipping'); continue; }
+
+        trigger.click();
+        const glovesOption = await waitForElement(
+            () => Array.from(document.querySelectorAll(
+                '.koMultiselect-dropDownItem span, .koMultiselect-dropDownItem'
+            )).find(n => cleanText(n.textContent) === 'Gloves'),
+            { timeout: 3000 }
+        );
+
+        if (glovesOption) {
+            glovesOption.click();
+            await sleep(400);
+            const okButton = Array.from(card.querySelectorAll('button, .button-control'))
+                .find(btn => cleanText(btn.innerText) === 'OK');
+            if (okButton) { okButton.click(); log('automatePPE: card ' + i + ' done'); }
+            else { warn('automatePPE: OK button not found on card ' + i); }
+            await sleep(500);
+        } else {
+            warn('automatePPE: "Gloves" not found for card ' + i);
         }
     }
+
+    nextStepCallback();
 }
+
+// ─── Shared Tab Handlers ───────────────────────────────────────────────────────
+
+async function sharedTransportDestTab(config) {
+    await pressDropdown(['MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH']);
+    await pressDropdown(['Hospital-Emergency Department']);
+    await pressButton(['Closest Facility', 'Wheeled Stretcher']);
+    await pressButton(['Add']);
+    await pressDropdown(['Emergency Department']);
+    await pressMenu(['Billing Information']);
+    await sleep(400);
+    await pressDropdown(['No Insurance Identified']);
+    await patientTab(config);
+}
+
+async function sharedTransportInfoTab(config) {
+    setInput('Number of Patients Transported', '1');
+    await pressButton(['Non-Emergent', 'No Lights or Sirens', 'Ground-Ambulance', 'Wheeled Stretcher', 'None/No Delay']);
+    await pressDropdownSecondary(['Semi-Fowlers']);
+    await pressMenu(['Disposition Destination']);
+    await sleep(400);
+    await sharedTransportDestTab(config);
+}
+
+// ─── Workflow: Emergent to MaineGeneral ────────────────────────────────────────
 
 function callEmergentMaineGeneral() {
     clearAutomatedFields();
-    showInitialConfigPopup((config) => {
-        setTimeout(() => {
-            press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
-            setTimeout(() => {
-                startTab(config);
-            }, 800);
-        }, 500);
+    showInitialConfigPopup(async (config) => {
+        await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
+        await sleep(400);
+
+        // Start-Up tab
+        await pressDropdown(['Emergency Response (Primary Response Area)']);
+        await pressButton(['Patient Contact Made', 'Patient Evaluated and Care Provided',
+            'Initiated and Continued Primary Care', 'Transport by This EMS Unit (This Crew Only)']);
+        await pressMenu(['Exposures & PPE']);
+        await sleep(500);
+        automatePPE(async () => {
+            // Response tab
+            await pressMenu(['Response', 'Response Info']);
+            await sleep(400);
+            await pressButton(['Emergent (Immediate Response)', 'Lights and Sirens', 'Single',
+                'Not Recorded', 'Distance', 'None/No Delay',
+                'Yes, Unknown if Pre-Arrival Instructions Given']);
+            if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
+            await pressDropdown(['Augusta Fire Department', 'None Noted']);
+            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason:', config.dispatchReason);
+
+            // Transport tab
+            await pressMenu(['Transport', 'Transport Info']);
+            await sleep(400);
+            setInput('Number of Patients Transported', '1');
+            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens',
+                'Ground-Ambulance', 'Wheeled Stretcher', 'None/No Delay']);
+            await pressDropdownSecondary(['Semi-Fowlers']);
+            await pressMenu(['Disposition Destination']);
+            await sleep(400);
+            await sharedTransportDestTab(config);
+        });
     });
-
-    function startTab(config) {
-        press("dropdown", ["Emergency Response (Primary Response Area)"]);
-        let startTabButtons = ["Patient Contact Made", "Patient Evaluated and Care Provided", "Initiated and Continued Primary Care", "Transport by This EMS Unit (This Crew Only)"];
-        press("button", startTabButtons);
-        
-        press("menu", ["Exposures & PPE"]);
-        setTimeout(() => {
-            automatePPE(() => responseTab(config));
-        }, 1000);
-    }
-
-    function responseTab(config) {
-        press("menu", ["Response", "Response Info"]);
-        setTimeout(() => {
-            let btns = ["Emergent (Immediate Response)", "Lights and Sirens", "Single", "Not Recorded", "Distance", "None/No Delay", "Yes, Unknown if Pre-Arrival Instructions Given"];
-            press("button", btns);
-            
-            if (config.emdCode) setInput("EMD Determinant Code", config.emdCode);
-
-            press("dropdown", ["Augusta Fire Department", "None Noted"]);
-            
-            if (config.dispatchReason) {
-                setDropdownByLabel("Dispatch Reason:", config.dispatchReason);
-            }
-
-            setTimeout(() => {
-                press("menu", ["Transport", "Transport Info"]);
-                setTimeout(() => transportInfoTab(config), 800);
-            }, 800);
-        }, 1000);
-    }
-
-    function transportInfoTab(config) {
-        setInput("Number of Patients Transported", "1");
-        press("button", ["Emergent (Immediate Response)", "Non-Emergent", "No Lights or Sirens", "Ground-Ambulance", "Wheeled Stretcher", "None/No Delay"]);
-        press("dropdown secondary", ["Semi-Fowlers"]);
-        press("menu", ["Disposition Destination"]);
-        setTimeout(() => transportDestTab(config), 800);
-    }
-
-    function transportDestTab(config) {
-        press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
-        setTimeout(() => {
-            press("dropdown", ["Hospital-Emergency Department"]);
-            press("button", ["Closest Facility", "Wheeled Stretcher"]);
-            press("button", ["Add"]); 
-            setTimeout(() => {
-                press("dropdown", ["Emergency Department"]);
-                setTimeout(() => {
-                    press("menu", ["Billing Information"]);
-                    setTimeout(() => {
-                        press("dropdown", ["No Insurance Identified"]);
-                        setTimeout(() => patientTab(config), 800);
-                    }, 800);
-                }, 800);
-            }, 800);
-        }, 800);
-    }
 }
+
+// ─── Workflow: Non-Emergent to MaineGeneral ────────────────────────────────────
 
 function callNonEmergentMaineGeneral() {
     clearAutomatedFields();
-    showInitialConfigPopup((config) => {
-        setTimeout(() => {
-            press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
-            setTimeout(() => startTab(config), 800);
-        }, 500);
+    showInitialConfigPopup(async (config) => {
+        await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
+        await sleep(400);
+
+        // Start-Up tab
+        await pressDropdown(['Emergency Response (Primary Response Area)']);
+        await pressButton(['Patient Contact Made', 'Patient Evaluated and Care Provided',
+            'Initiated and Continued Primary Care', 'Transport by This EMS Unit (This Crew Only)']);
+        await pressMenu(['Exposures & PPE']);
+        await sleep(500);
+        automatePPE(async () => {
+            // Response tab
+            await pressMenu(['Response', 'Response Info']);
+            await sleep(400);
+            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens', 'Single',
+                'Not Recorded', 'Distance', 'None/No Delay',
+                'Yes, Unknown if Pre-Arrival Instructions Given']);
+            if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
+            await pressDropdown(['Augusta Fire Department', 'None Noted']);
+            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason:', config.dispatchReason);
+
+            // Transport tab
+            await pressMenu(['Transport', 'Transport Info']);
+            await sleep(400);
+            await sharedTransportInfoTab(config);
+        });
     });
-
-    function startTab(config) {
-        press("dropdown", ["Emergency Response (Primary Response Area)"]);
-        press("button", ["Patient Contact Made", "Patient Evaluated and Care Provided", "Initiated and Continued Primary Care", "Transport by This EMS Unit (This Crew Only)"]);
-        press("menu", ["Exposures & PPE"]);
-        setTimeout(() => automatePPE(() => responseTab(config)), 1000);
-    }
-
-    function responseTab(config) {
-        press("menu", ["Response", "Response Info"]);
-        setTimeout(() => {
-            let btns = ["Emergent (Immediate Response)", "No Lights or Sirens", "Single", "Not Recorded", "Distance", "None/No Delay", "Yes, Unknown if Pre-Arrival Instructions Given"];
-            press("button", btns);
-
-            if (config.emdCode) setInput("EMD Determinant Code", config.emdCode);
-
-            press("dropdown", ["Augusta Fire Department", "None Noted"]);
-            
-            if (config.dispatchReason) {
-                setDropdownByLabel("Dispatch Reason:", config.dispatchReason);
-            }
-
-            setTimeout(() => {
-                press("menu", ["Transport", "Transport Info"]);
-                setTimeout(() => transportInfoTab(config), 800);
-            }, 800);
-        }, 1000);
-    }
-
-    function transportInfoTab(config) {
-        setInput("Number of Patients Transported", "1");
-        press("button", ["Emergent (Immediate Response)", "Non-Emergent", "No Lights or Sirens", "Ground-Ambulance", "Wheeled Stretcher", "None/No Delay"]);
-        press("dropdown secondary", ["Semi-Fowlers"]);
-        press("menu", ["Disposition Destination"]);
-        setTimeout(() => transportDestTab(config), 800);
-    }
-
-    function transportDestTab(config) {
-        press("dropdown", ["MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH"]);
-        setTimeout(() => {
-            press("dropdown", ["Hospital-Emergency Department"]);
-            press("button", ["Closest Facility", "Wheeled Stretcher"]);
-            press("button", ["Add"]);
-            setTimeout(() => {
-                press("dropdown", ["Emergency Department"]);
-                setTimeout(() => {
-                    press("menu", ["Billing Information"]);
-                    setTimeout(() => {
-                        press("dropdown", ["No Insurance Identified"]);
-                        setTimeout(() => patientTab(config), 800);
-                    }, 800);
-                }, 800);
-            }, 800);
-        }, 800);
-    }
 }
+
+// ─── Workflow: Lift Assist ─────────────────────────────────────────────────────
 
 function liftAssist() {
     clearAutomatedFields();
-    showInitialConfigPopup((config) => {
-        setTimeout(() => {
-            press("menu", ["Start Up", "Start-Up", "Responding Unit Information"]);
-            setTimeout(() => startTab(config), 800);
-        }, 500);
-    });
+    showInitialConfigPopup(async (config) => {
+        await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
+        await sleep(400);
 
-    function startTab(config) {
-        press("dropdown", ["Emergency Response (Primary Response Area)"]);
-        press("button", ["Non-Patient Incident (Not Otherwise Listed)"]);
-        press("menu", ["Exposures & PPE"]);
-        setTimeout(() => automatePPE(() => responseTab(config)), 1000);
-    }
+        // Start-Up tab
+        await pressDropdown(['Emergency Response (Primary Response Area)']);
+        await pressButton(['Non-Patient Incident (Not Otherwise Listed)']);
+        await pressMenu(['Exposures & PPE']);
+        await sleep(500);
+        automatePPE(async () => {
+            // Response tab
+            await pressMenu(['Response', 'Response Info']);
+            await sleep(400);
+            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens', 'Single',
+                'Not Recorded', 'Distance', 'None/No Delay',
+                'Yes, Unknown if Pre-Arrival Instructions Given']);
+            if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
+            await pressDropdown(['Augusta Fire Department', 'None Noted']);
+            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason:', config.dispatchReason);
 
-    function responseTab(config) {
-        press("menu", ["Response", "Response Info"]);
-        setTimeout(() => {
-            press("button", ["Emergent (Immediate Response)", "No Lights or Sirens", "Single", "Not Recorded", "Distance", "None/No Delay", "Yes, Unknown if Pre-Arrival Instructions Given"]);
-            
-            if (config.emdCode) setInput("EMD Determinant Code", config.emdCode);
-
-            press("dropdown", ["Augusta Fire Department", "None Noted"]);
-            
-            if (config.dispatchReason) {
-                setDropdownByLabel("Dispatch Reason:", config.dispatchReason);
-            }
-
-            setTimeout(() => {
-                press("menu", ["Billing Information"]);
-                setTimeout(() => {
-                    press("dropdown", ["No Insurance Identified"]);
-                    setTimeout(() => patientTab(config), 800);
-                }, 800);
-            }, 800);
-        }, 1000);
-    }
-}
-
-function patientTab(config) {
-    if (config.isSameAddress) {
-        press("menu", ["Patient", "Patient Info", "Patient Information"]);
-        setTimeout(() => {
-            press("button", ["Patient Address Same as Incident Address"]);
-            setTimeout(() => {
-                press("button", ["Find a Repeat Patient"]);
-            }, 1000);
-        }, 1200);
-    }
-}
-
-function setInput(labelName, value) {
-    const inputs = Array.from(document.querySelectorAll('input'));
-    const targetInput = inputs.find(input => {
-        const parent = input.closest('.ko-grid-column, .single-row-control');
-        return parent && parent.innerText.includes(labelName);
-    });
-    if (targetInput) {
-        targetInput.value = value;
-        ['input', 'change', 'blur'].forEach(ev => targetInput.dispatchEvent(new Event(ev, { bubbles: true })));
-    }
-}
-
-function automatePPE(nextStepCallback) {
-    press("button", ["Add All Crew"]);
-    setTimeout(() => {
-        let cards = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
-                         .filter(el => el.innerText.includes("EMS Professional (Crew Member) ID:"));
-        if (cards.length === 0) {
-            nextStepCallback();
-            return;
-        }
-        let i = 0;
-        const processNextCard = () => {
-            if (i >= cards.length) {
-                nextStepCallback();
-                return;
-            }
-            let currentCard = cards[i];
-            let dropdownTrigger = currentCard.querySelector('.koMultiselect-searchbar, .koMultiselect-down-button, input.koMultiselect-searchbar-input');
-            if (dropdownTrigger) {
-                dropdownTrigger.click();
-                setTimeout(() => {
-                    let ppeItems = Array.from(document.querySelectorAll('.koMultiselect-dropDownItem span, .koMultiselect-dropDownItem'));
-                    let glovesOption = ppeItems.find(node => node.textContent.trim() === "Gloves");
-                    if (glovesOption) {
-                        glovesOption.click();
-                        setTimeout(() => {
-                            let okButton = Array.from(currentCard.querySelectorAll('button, .button-control')).find(btn => btn.innerText.includes("OK"));
-                            if (okButton) okButton.click();
-                            i++;
-                            setTimeout(processNextCard, 800); 
-                        }, 800);
-                    } else {
-                        i++;
-                        setTimeout(processNextCard, 200);
-                    }
-                }, 800);
-            } else {
-                i++;
-                processNextCard();
-            }
-        };
-        processNextCard();
-    }, 1500);
-}
-
-function press(typeOfClick, arrayToPassIn) {
-    let grabNodes;
-    if (typeOfClick === "dropdown" || typeOfClick === "dropdown secondary") {
-        let triggers = document.querySelectorAll('.ko-dropdown-placeholder, .ko-dropdown-value, .koMultiselect-searchbar-input, .koMultiselect-searchbar');
-        triggers.forEach(t => t.click());
-    }
-    switch (typeOfClick) {
-        case "dropdown":
-            grabNodes = Array.from(document.querySelectorAll('.koSingleselect-dropDownItem, .ko-dropdown-value, .koSingleselect-dropDownItem span'));
-            break;
-        case "dropdown secondary":
-            grabNodes = Array.from(document.querySelectorAll('.koMultiselect-dropDownItem, .koMultiselect-dropDownItem span'));
-            break;
-        case "button":
-            grabNodes = Array.from(document.querySelectorAll(".smart-list-button-label, .smart-list-button, button"));
-            break;
-        case "menu":
-            let sections = document.getElementById("sections");
-            if (sections) {
-                grabNodes = Array.from(sections.querySelectorAll('.text-padding, .form-navigation-section-caption-text'));
-            }
-            break;
-        default:
-            break;
-    }
-    if (!grabNodes) return;
-    arrayToPassIn.forEach(val => {
-        let matchingNodes = grabNodes.filter(node => node.textContent.replace(/[\u200B-\u200D\uFEFF]/g, '').trim() === val);
-        matchingNodes.forEach(node => node.click());
+            // Billing (no transport for lift assist)
+            await pressMenu(['Billing Information']);
+            await sleep(400);
+            await pressDropdown(['No Insurance Identified']);
+            await patientTab(config);
+        });
     });
 }
+
+// ─── Patient Tab ───────────────────────────────────────────────────────────────
+
+async function patientTab(config) {
+    if (!config.isSameAddress) return;
+    await pressMenu(['Patient', 'Patient Info', 'Patient Information']);
+    await sleep(500);
+    await pressButton(['Patient Address Same as Incident Address']);
+    await sleep(700);
+    await pressButton(['Find a Repeat Patient']);
+}
+
+// ─── Button Injection ──────────────────────────────────────────────────────────
 
 function buttonWatcher() {
-    const functionArray = [callEmergentMaineGeneral, callNonEmergentMaineGeneral, liftAssist];
-    const buttonNames = ["Emergent to MaineGeneral", "Non-Emergent to MaineGeneral", "Lift Assist"];
-    function addButtons() {
-        const saveButton = Array.from(document.querySelectorAll("button, .button-control")).find(el => el.textContent.includes("Save") && el.offsetParent !== null);
+    const fns   = [callEmergentMaineGeneral, callNonEmergentMaineGeneral, liftAssist];
+    const names = ['Emergent to MaineGeneral', 'Non-Emergent to MaineGeneral', 'Lift Assist'];
+
+    function tryAddButtons() {
+        const saveButton = Array.from(document.querySelectorAll('button, .button-control'))
+            .find(el => cleanText(el.textContent) === 'Save' && el.offsetParent !== null);
         if (!saveButton) return;
-        const buttonParent = saveButton.parentElement;
-        if (buttonParent.querySelector(".mefirs-filler-btn-group")) return;
+
+        const parent = saveButton.parentElement;
+        if (parent.querySelector('.mefirs-filler-btn-group')) return;
+
         const btnGroup = document.createElement('div');
-        btnGroup.className = "mefirs-filler-btn-group";
-        btnGroup.style.cssText = "display:inline-flex; flex-wrap:nowrap; margin-left:10px; vertical-align:middle;";
-        for (let i = 0; i < functionArray.length; i++) {
-            const newButton = document.createElement('button');
-            newButton.className = saveButton.className + " mefirs-filler-btn";
-            newButton.innerHTML = buttonNames[i];
-            newButton.style.cssText = "margin-left:5px; background-color:#d9534f; color:white; white-space:nowrap;";
-            newButton.onclick = functionArray[i];
-            btnGroup.appendChild(newButton);
+        btnGroup.className = 'mefirs-filler-btn-group';
+        btnGroup.style.cssText = 'display:inline-flex;flex-wrap:nowrap;margin-left:10px;vertical-align:middle;';
+
+        for (let i = 0; i < fns.length; i++) {
+            const btn = document.createElement('button');
+            btn.className = saveButton.className + ' mefirs-filler-btn';
+            btn.textContent = names[i];
+            btn.style.cssText = 'margin-left:5px;background-color:#d9534f;color:white;white-space:nowrap;';
+            btn.addEventListener('click', fns[i]);
+            btnGroup.appendChild(btn);
         }
-        buttonParent.appendChild(btnGroup);
+        parent.appendChild(btnGroup);
+        log('Buttons injected next to Save');
     }
-    setInterval(addButtons, 2000);
+
+    tryAddButtons();
+    const observer = new MutationObserver(tryAddButtons);
+    observer.observe(document.body, { childList: true, subtree: true });
 }
+
+// ─── Field Watcher & Keyboard Shortcuts ───────────────────────────────────────
+
+function fieldWatcher() {
+    function attachShortcuts(field) {
+        field.addEventListener('keydown', function(event) {
+            if (event.key === 'Tab') {
+                event.preventDefault();
+                const [start, end] = searchDDS(field);
+                if (start !== -1) field.setSelectionRange(start, end);
+            }
+            if (event.ctrlKey && event.key === 'p') {
+                event.preventDefault();
+                const text = field.value;
+                const from = field.selectionStart;
+                const pos  = text.slice(from).search(/[.\n:]/);
+                if (pos !== -1) field.setSelectionRange(from, from + pos + 1);
+            }
+        });
+        log('Keyboard shortcuts attached to field #' + field.id);
+    }
+
+    const existing = document.getElementById('73533');
+    if (existing) { attachShortcuts(existing); return; }
+
+    const observer = new MutationObserver(() => {
+        const field = document.getElementById('73533');
+        if (field) { observer.disconnect(); attachShortcuts(field); }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+function searchDDS(field) {
+    const idx = field.value.search('DDS');
+    if (idx === -1) return [-1, -1];
+    let end = idx;
+    const stops = [' ', '.', '\n'];
+    while (end < field.value.length && !stops.includes(field.value[end])) end++;
+    return [idx, end];
+}
+
+// ─── Init ──────────────────────────────────────────────────────────────────────
 
 buttonWatcher();
 fieldWatcher();
-
-function fieldWatcher() {
-    function checkForField() {
-        const foundField = document.getElementById("73533");
-        if (foundField) {
-            shortcutKeys();
-            clearInterval(intervalID);
-        }
-    }
-    const intervalID = setInterval(checkForField, 1000);
-}
-
-function shortcutKeys() {
-    let currentStringField = document.getElementById("73533");
-    currentStringField.addEventListener("keydown", function (event) {
-        if (event.key === "Tab") {
-            event.preventDefault();
-            const [ddsStart, ddsEnd] = searchDDS(currentStringField);
-            if (ddsStart !== -1 && ddsEnd !== -1) currentStringField.setSelectionRange(ddsStart, ddsEnd);
-        }
-        if (event.ctrlKey && event.key === "p") {
-            event.preventDefault();
-            let text = currentStringField.value;
-            let startIndex = currentStringField.selectionStart;
-            let periodPosition = text.slice(startIndex).search(/[.\n:]/);
-            if (periodPosition !== -1) {
-                let endPosition = startIndex + periodPosition + 1;
-                currentStringField.setSelectionRange(startIndex, endPosition);
-            }
-        }
-    });
-}
-
-function searchDDS(currentStringField) {
-    let DDS = currentStringField.value.search("DDS");
-    if (DDS !== -1) return [DDS, findEndOfWord(currentStringField.value, DDS)];
-    return [-1, -1];
-    function findEndOfWord(text, startIndex) {
-        let endPosition = startIndex;
-        const validChars = [' ', '.', '\n'];
-        while (endPosition < text.length && !validChars.includes(text[endPosition])) endPosition++;
-        return endPosition;
-    }
-}
