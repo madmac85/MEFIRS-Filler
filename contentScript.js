@@ -563,12 +563,15 @@ function callEmergentMaineGeneral() {
         await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
         await sleep(600);
 
-        // Start-Up tab
+        // Start-Up tab — each selection triggers the next field to appear
         await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
         await pressButton(['Patient Contact Made']);
-        await pressButton(['Patient Evaluated and Care Provided']);
-        await setDropdownByLabel('Crew Disposition', 'Initiated and Continued Primary Care');
-        await setDropdownByLabel('Transport Disposition', 'Transport by This EMS Unit (This Crew Only)');
+        // Patient Evaluation/Care appears after Unit Disposition
+        await pressButton(['Patient Evaluated and Care Provided'], { timeout: 5000 });
+        // Crew Disposition buttons appear after Patient Evaluation/Care
+        await pressButton(['Initiated and Continued Primary Care'], { timeout: 5000 });
+        // Transport Disposition buttons appear after Crew Disposition
+        await pressButton(['Transport by This EMS Unit (This Crew Only)'], { timeout: 5000 });
         await pressMenu(['Exposures & PPE']);
         await sleep(500);
         automatePPE(async () => {
@@ -612,12 +615,12 @@ function callNonEmergentMaineGeneral() {
         await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
         await sleep(600);
 
-        // Start-Up tab
+        // Start-Up tab — each selection triggers the next field to appear
         await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
         await pressButton(['Patient Contact Made']);
-        await pressButton(['Patient Evaluated and Care Provided']);
-        await setDropdownByLabel('Crew Disposition', 'Initiated and Continued Primary Care');
-        await setDropdownByLabel('Transport Disposition', 'Transport by This EMS Unit (This Crew Only)');
+        await pressButton(['Patient Evaluated and Care Provided'], { timeout: 5000 });
+        await pressButton(['Initiated and Continued Primary Care'], { timeout: 5000 });
+        await pressButton(['Transport by This EMS Unit (This Crew Only)'], { timeout: 5000 });
         await pressMenu(['Exposures & PPE']);
         await sleep(500);
         automatePPE(async () => {
@@ -655,7 +658,7 @@ function liftAssist() {
         await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
         await sleep(600);
 
-        // Start-Up tab
+        // Start-Up tab — Non-Patient Incident has no Crew/Transport Disposition
         await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
         await pressButton(['Non-Patient Incident (Not Otherwise Listed)']);
         await pressMenu(['Exposures & PPE']);
