@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MEFIRS Filler",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "content_scripts": [
     {
       "matches": [ "https://www.mefirs.org/*" ],
