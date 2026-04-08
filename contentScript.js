@@ -33,8 +33,65 @@ function cleanText(t) {
     return (t || '').replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
 }
 
-function log(msg)  { console.log('[MEFIRS Filler] ' + msg); }
+function log(msg)  { console.log('[MEFIRS Filler] ' + msg); updateStatusStep(msg); }
 function warn(msg) { console.warn('[MEFIRS Filler] WARNING: ' + msg); }
+
+// ─── Status Banner ────────────────────────────────────────────────────────────
+
+function injectStatusStyles() {
+    if (document.getElementById('mefirs-filler-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'mefirs-filler-styles';
+    style.textContent =
+        '@keyframes mefirs-pulse { 0%,100%{opacity:1} 50%{opacity:.6} }' +
+        '@keyframes mefirs-spin { to{transform:rotate(360deg)} }' +
+        '#mefirs-status-banner{position:fixed;top:0;left:0;right:0;z-index:99999;' +
+            'font-family:sans-serif;font-size:14px;padding:10px 20px;display:flex;' +
+            'align-items:center;gap:10px;transition:transform .3s ease,opacity .3s ease;' +
+            'transform:translateY(-100%);opacity:0;box-shadow:0 2px 8px rgba(0,0,0,.2)}' +
+        '#mefirs-status-banner.visible{transform:translateY(0);opacity:1}' +
+        '#mefirs-status-banner.running{background:#1a73e8;color:white}' +
+        '#mefirs-status-banner.done{background:#0d9f4f;color:white}' +
+        '#mefirs-status-banner.error{background:#d93025;color:white}' +
+        '#mefirs-status-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);' +
+            'border-top-color:white;border-radius:50%;animation:mefirs-spin .6s linear infinite}' +
+        '#mefirs-status-text{flex:1}' +
+        '#mefirs-status-step{font-size:12px;opacity:.85;margin-left:8px}';
+    document.head.appendChild(style);
+}
+
+function showStatusBanner(state, text) {
+    injectStatusStyles();
+    let banner = document.getElementById('mefirs-status-banner');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'mefirs-status-banner';
+        banner.innerHTML = '<div id="mefirs-status-spinner"></div>' +
+            '<span id="mefirs-status-text"></span>' +
+            '<span id="mefirs-status-step"></span>';
+        document.body.appendChild(banner);
+    }
+    banner.className = state;
+    document.getElementById('mefirs-status-text').textContent = text;
+    document.getElementById('mefirs-status-step').textContent = '';
+    const spinner = document.getElementById('mefirs-status-spinner');
+    spinner.style.display = state === 'running' ? 'block' : 'none';
+    // Trigger reflow for animation
+    void banner.offsetHeight;
+    banner.classList.add('visible');
+}
+
+function updateStatusStep(stepText) {
+    const el = document.getElementById('mefirs-status-step');
+    if (el) el.textContent = stepText;
+}
+
+function hideStatusBanner(delay) {
+    setTimeout(() => {
+        const banner = document.getElementById('mefirs-status-banner');
+        if (banner) banner.classList.remove('visible');
+    }, delay || 0);
+}
 
 // ─── Core Interaction Primitives ───────────────────────────────────────────────
 
@@ -500,30 +557,38 @@ async function sharedTransportInfoTab(config) {
 
 function callEmergentMaineGeneral() {
     clearAutomatedFields();
+    showStatusBanner('running', 'MEFIRS Filler: Running Emergent to MaineGeneral...');
     showInitialConfigPopup(async (config) => {
+        try {
         await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
-        await sleep(400);
+        await sleep(600);
 
-        // Start-Up tab
+        // Start-Up tab — each selection triggers the next field to appear
         await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
-        await pressButton(['Patient Contact Made', 'Patient Evaluated and Care Provided',
-            'Initiated and Continued Primary Care', 'Transport by This EMS Unit (This Crew Only)']);
+        await pressButton(['Patient Contact Made']);
+        // Patient Evaluation/Care appears after Unit Disposition
+        await pressButton(['Patient Evaluated and Care Provided'], { timeout: 5000 });
+        // Crew Disposition buttons appear after Patient Evaluation/Care
+        await pressButton(['Initiated and Continued Primary Care'], { timeout: 5000 });
+        // Transport Disposition buttons appear after Crew Disposition
+        await pressButton(['Transport by This EMS Unit (This Crew Only)'], { timeout: 5000 });
         await pressMenu(['Exposures & PPE']);
         await sleep(500);
         automatePPE(async () => {
+            try {
             // Response tab
             await pressMenu(['Response', 'Response Info']);
-            await sleep(400);
-            await pressButton(['Emergent (Immediate Response)', 'Lights and Sirens', 'Single',
-                'Not Recorded', 'Distance', 'None/No Delay',
-                'Yes, Unknown if Pre-Arrival Instructions Given']);
+            await sleep(600);
+            await pressButton(['Emergent (Immediate Response)', 'Lights and Sirens']);
+            await pressButton(['Single', 'Not Recorded', 'Distance', 'None/No Delay']);
+            await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
             await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
 
             // Transport tab
             await pressMenu(['Transport', 'Transport Info']);
-            await sleep(400);
+            await sleep(600);
             setInput('Number of Patients Transported', '1');
             await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens',
                 'Ground-Ambulance', 'Wheeled Stretcher', 'None/No Delay']);
@@ -531,7 +596,12 @@ function callEmergentMaineGeneral() {
             await pressMenu(['Disposition Destination']);
             await sleep(400);
             await sharedTransportDestTab(config);
+
+            showStatusBanner('done', 'MEFIRS Filler: Emergent to MaineGeneral complete');
+            hideStatusBanner(4000);
+            } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
         });
+        } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
     });
 }
 
@@ -539,32 +609,42 @@ function callEmergentMaineGeneral() {
 
 function callNonEmergentMaineGeneral() {
     clearAutomatedFields();
+    showStatusBanner('running', 'MEFIRS Filler: Running Non-Emergent to MaineGeneral...');
     showInitialConfigPopup(async (config) => {
+        try {
         await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
-        await sleep(400);
+        await sleep(600);
 
-        // Start-Up tab
+        // Start-Up tab — each selection triggers the next field to appear
         await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
-        await pressButton(['Patient Contact Made', 'Patient Evaluated and Care Provided',
-            'Initiated and Continued Primary Care', 'Transport by This EMS Unit (This Crew Only)']);
+        await pressButton(['Patient Contact Made']);
+        await pressButton(['Patient Evaluated and Care Provided'], { timeout: 5000 });
+        await pressButton(['Initiated and Continued Primary Care'], { timeout: 5000 });
+        await pressButton(['Transport by This EMS Unit (This Crew Only)'], { timeout: 5000 });
         await pressMenu(['Exposures & PPE']);
         await sleep(500);
         automatePPE(async () => {
+            try {
             // Response tab
             await pressMenu(['Response', 'Response Info']);
-            await sleep(400);
-            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens', 'Single',
-                'Not Recorded', 'Distance', 'None/No Delay',
-                'Yes, Unknown if Pre-Arrival Instructions Given']);
+            await sleep(600);
+            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens']);
+            await pressButton(['Single', 'Not Recorded', 'Distance', 'None/No Delay']);
+            await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
             await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
 
             // Transport tab
             await pressMenu(['Transport', 'Transport Info']);
-            await sleep(400);
+            await sleep(600);
             await sharedTransportInfoTab(config);
+
+            showStatusBanner('done', 'MEFIRS Filler: Non-Emergent to MaineGeneral complete');
+            hideStatusBanner(4000);
+            } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
         });
+        } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
     });
 }
 
@@ -572,22 +652,25 @@ function callNonEmergentMaineGeneral() {
 
 function liftAssist() {
     clearAutomatedFields();
+    showStatusBanner('running', 'MEFIRS Filler: Running Lift Assist...');
     showInitialConfigPopup(async (config) => {
+        try {
         await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
-        await sleep(400);
+        await sleep(600);
 
-        // Start-Up tab
+        // Start-Up tab — Non-Patient Incident has no Crew/Transport Disposition
         await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
         await pressButton(['Non-Patient Incident (Not Otherwise Listed)']);
         await pressMenu(['Exposures & PPE']);
         await sleep(500);
         automatePPE(async () => {
+            try {
             // Response tab
             await pressMenu(['Response', 'Response Info']);
-            await sleep(400);
-            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens', 'Single',
-                'Not Recorded', 'Distance', 'None/No Delay',
-                'Yes, Unknown if Pre-Arrival Instructions Given']);
+            await sleep(600);
+            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens']);
+            await pressButton(['Single', 'Not Recorded', 'Distance', 'None/No Delay']);
+            await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
             await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
@@ -597,7 +680,12 @@ function liftAssist() {
             await sleep(400);
             await setDropdownByLabel('Primary Method of Payment', 'No Insurance Identified');
             await patientTab(config);
+
+            showStatusBanner('done', 'MEFIRS Filler: Lift Assist complete');
+            hideStatusBanner(4000);
+            } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
         });
+        } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
     });
 }
 
