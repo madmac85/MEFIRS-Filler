@@ -30,7 +30,7 @@ function sleep(ms) {
 }
 
 function cleanText(t) {
-    return (t || '').replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+    return (t || '').replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, ' ').trim();
 }
 
 function log(msg)  { console.log('[MEFIRS Filler] ' + msg); updateStatusStep(msg); }
@@ -217,13 +217,25 @@ function findDropdownItem(type, name) {
 }
 
 /**
+ * Find the innermost (most specific) field container matching a label.
+ * Sorts candidates by innerText length so we pick the tightest wrapper
+ * around the field, not a parent section that contains many fields.
+ */
+function findFieldContainer(labelName) {
+    const candidates = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
+        .filter(el => el.innerText.includes(labelName));
+    if (candidates.length === 0) return null;
+    candidates.sort((a, b) => a.innerText.length - b.innerText.length);
+    return candidates[0];
+}
+
+/**
  * Find a field container by its label text, open that field's dropdown,
  * then wait for and click the target value. Use this when you know the label.
  */
 async function setDropdownByLabel(labelName, value, { timeout = 5000 } = {}) {
     if (!value) return;
-    const container = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
-        .find(el => el.innerText.includes(labelName));
+    const container = findFieldContainer(labelName);
     if (!container) { warn('setDropdownByLabel: container for "' + labelName + '" not found'); return; }
 
     const trigger = container.querySelector(
@@ -249,8 +261,7 @@ async function setDropdownByLabel(labelName, value, { timeout = 5000 } = {}) {
  */
 async function setMultiselectByLabel(labelName, value, { timeout = 5000 } = {}) {
     if (!value) return;
-    const container = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
-        .find(el => el.innerText.includes(labelName));
+    const container = findFieldContainer(labelName);
     if (!container) { warn('setMultiselectByLabel: container for "' + labelName + '" not found'); return; }
 
     const trigger = container.querySelector(
@@ -274,11 +285,8 @@ async function setMultiselectByLabel(labelName, value, { timeout = 5000 } = {}) 
  * Fires input/change/blur events so KnockoutJS bindings pick up the change.
  */
 function setInput(labelName, value) {
-    const inputs = Array.from(document.querySelectorAll('input'));
-    const target = inputs.find(input => {
-        const parent = input.closest('.ko-grid-column, .single-row-control');
-        return parent && parent.innerText.includes(labelName);
-    });
+    const container = findFieldContainer(labelName);
+    const target = container ? container.querySelector('input') : null;
     if (target) {
         target.value = value;
         ['input', 'change', 'blur'].forEach(ev =>
@@ -468,7 +476,24 @@ function showInitialConfigPopup(onComplete) {
 // ─── PPE Automation ────────────────────────────────────────────────────────────
 
 async function automatePPE(nextStepCallback) {
-    await pressButton(['Add All Crew']);
+    // Click add button — may be smart-list "Add All Crew" or regular button "+ Add"
+    const addBtn = await waitForElement(
+        () => {
+            const smart = Array.from(document.querySelectorAll('.smart-list-button-label, .smart-list-button'))
+                .find(n => cleanText(n.textContent) === 'Add All Crew');
+            if (smart) return smart;
+            return Array.from(document.querySelectorAll('button, .button-control'))
+                .filter(el => el.offsetParent !== null)
+                .find(el => {
+                    const t = cleanText(el.textContent);
+                    return t === '+ Add' || t === 'Add';
+                });
+        },
+        { timeout: 4000 }
+    );
+    if (!addBtn) { warn('automatePPE: no add button found'); nextStepCallback(); return; }
+    addBtn.click();
+    log('automatePPE: clicked add button');
 
     // Wait for crew cards to load
     const firstCard = await waitForElement(
@@ -534,9 +559,8 @@ async function automatePPE(nextStepCallback) {
 
 async function sharedTransportDestTab(config) {
     await setDropdownByLabel('Destination/Transferred To', 'MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH');
-    await setDropdownByLabel('Destination Type', 'Hospital-Emergency Department');
-    await pressButton(['Closest Facility', 'Wheeled Stretcher']);
-    await pressButton(['Add']);
+    await setMultiselectByLabel('Reason for Choosing Destination', 'Closest Facility');
+    await pressButton(['Wheeled Stretcher']);  // How Patient Was Moved From Ambulance
     await setDropdownByLabel('Hospital Designation', 'Emergency Department');
     await pressMenu(['Billing Information']);
     await sleep(400);
@@ -546,8 +570,10 @@ async function sharedTransportDestTab(config) {
 
 async function sharedTransportInfoTab(config) {
     setInput('Number of Patients Transported', '1');
-    await pressButton(['Non-Emergent', 'No Lights or Sirens', 'Ground-Ambulance', 'Wheeled Stretcher', 'None/No Delay']);
-    await setMultiselectByLabel('Patient Position', 'Semi-Fowlers');
+    await pressButton(['Non-Emergent', 'No Lights or Sirens', 'Ground-Ambulance', 'Wheeled Stretcher']);
+    await setMultiselectByLabel('Type of Transport Delay', 'None/No Delay');
+    await setMultiselectByLabel('Type of Turn-Around Delay', 'None/No Delay');
+    await setMultiselectByLabel('Position of Patient During Transport', 'Semi-Fowlers');
     await pressMenu(['Disposition Destination']);
     await sleep(400);
     await sharedTransportDestTab(config);
@@ -580,7 +606,9 @@ function callEmergentMaineGeneral() {
             await pressMenu(['Response', 'Response Info']);
             await sleep(600);
             await pressButton(['Emergent (Immediate Response)', 'Lights and Sirens']);
-            await pressButton(['Single', 'Not Recorded', 'Distance', 'None/No Delay']);
+            await pressButton(['Single', 'Not Recorded']);
+            await setMultiselectByLabel('Type of Dispatch Delay', 'None/No Delay');
+            await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
             await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
@@ -591,8 +619,10 @@ function callEmergentMaineGeneral() {
             await sleep(600);
             setInput('Number of Patients Transported', '1');
             await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens',
-                'Ground-Ambulance', 'Wheeled Stretcher', 'None/No Delay']);
-            await setMultiselectByLabel('Patient Position', 'Semi-Fowlers');
+                'Ground-Ambulance', 'Wheeled Stretcher']);
+            await setMultiselectByLabel('Type of Transport Delay', 'None/No Delay');
+            await setMultiselectByLabel('Type of Turn-Around Delay', 'None/No Delay');
+            await setMultiselectByLabel('Position of Patient During Transport', 'Semi-Fowlers');
             await pressMenu(['Disposition Destination']);
             await sleep(400);
             await sharedTransportDestTab(config);
@@ -629,7 +659,9 @@ function callNonEmergentMaineGeneral() {
             await pressMenu(['Response', 'Response Info']);
             await sleep(600);
             await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens']);
-            await pressButton(['Single', 'Not Recorded', 'Distance', 'None/No Delay']);
+            await pressButton(['Single', 'Not Recorded']);
+            await setMultiselectByLabel('Type of Dispatch Delay', 'None/No Delay');
+            await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
             await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
@@ -669,7 +701,9 @@ function liftAssist() {
             await pressMenu(['Response', 'Response Info']);
             await sleep(600);
             await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens']);
-            await pressButton(['Single', 'Not Recorded', 'Distance', 'None/No Delay']);
+            await pressButton(['Single', 'Not Recorded']);
+            await setMultiselectByLabel('Type of Dispatch Delay', 'None/No Delay');
+            await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
             await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
@@ -692,12 +726,15 @@ function liftAssist() {
 // ─── Patient Tab ───────────────────────────────────────────────────────────────
 
 async function patientTab(config) {
-    if (!config.isSameAddress) return;
     await pressMenu(['Patient', 'Patient Info', 'Patient Information']);
     await sleep(500);
-    await pressButton(['Patient Address Same as Incident Address']);
-    await sleep(700);
-    await pressButton(['Find a Repeat Patient']);
+    await pressButton(['Not Recorded']);  // Veteran Status
+    await setDropdownByLabel('Alternate Home Residence', 'No');
+    if (config.isSameAddress) {
+        await pressButton(['Patient Address Same as Incident Address']);
+        await sleep(700);
+        await pressButton(['Find a Repeat Patient']);
+    }
 }
 
 // ─── Button Injection ──────────────────────────────────────────────────────────
