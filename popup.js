@@ -6,6 +6,34 @@ document.getElementById("refusalTemplate").addEventListener("click", () => revea
 document.getElementById("liftTemplate").addEventListener("click", () => revealTemplates("lift"));
 document.getElementById("prepareButton").addEventListener("click", movetoPopUP);
 
+// ─── Settings ────────────────────────────────────────────────────────────────
+
+const DEFAULTS = {
+    dispatchLocation: 'Augusta Fire Department',
+    destinationFull: 'MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH',
+    destinationShort: 'MaineGeneral'
+};
+
+// Load saved settings into inputs on popup open
+chrome.storage.sync.get(DEFAULTS, (saved) => {
+    document.getElementById('dispatchLocation').value = saved.dispatchLocation;
+    document.getElementById('destinationFull').value = saved.destinationFull;
+    document.getElementById('destinationShort').value = saved.destinationShort;
+});
+
+document.getElementById('saveSettings').addEventListener('click', () => {
+    const settings = {
+        dispatchLocation: document.getElementById('dispatchLocation').value.trim() || DEFAULTS.dispatchLocation,
+        destinationFull:  document.getElementById('destinationFull').value.trim() || DEFAULTS.destinationFull,
+        destinationShort: document.getElementById('destinationShort').value.trim() || DEFAULTS.destinationShort
+    };
+    chrome.storage.sync.set(settings, () => {
+        const status = document.getElementById('settingsStatus');
+        status.textContent = 'Settings saved! Reload MEFIRS to apply.';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+    });
+});
+
 
 //For moving the popup to the side of the screen. Sorta depreciated but keeping it for future use.
 function movetoPopUP() {
