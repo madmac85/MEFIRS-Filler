@@ -55,10 +55,89 @@
             white-space: pre;
             text-align: left;
         }
+
+        .settings-section {
+            text-align: left;
+            background: #e8e8e8;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .settings-section h3 {
+            margin: 0 0 10px 0;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .settings-section label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 8px;
+            margin-bottom: 2px;
+        }
+
+        .settings-section input {
+            width: 100%;
+            padding: 6px 8px;
+            font-size: 12px;
+            border: 1px solid #999;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .settings-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #saveSettings {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            background: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        #saveSettings:hover { background: #4cae4c; }
+
+        #settingsStatus {
+            text-align: center;
+            font-size: 11px;
+            color: #4cae4c;
+            margin-top: 4px;
+            min-height: 16px;
+        }
     </style>
 </head>
 
 <body>
+    <div class="settings-section">
+        <h3>Settings</h3>
+        <label for="dispatchLocation">Vehicle Dispatch Location:</label>
+        <input type="text" id="dispatchLocation" placeholder="e.g., Augusta Fire Department">
+
+        <label for="destinationFull" style="margin-top:12px">Destination Facility (full MEFIRS value):</label>
+        <input type="text" id="destinationFull" placeholder="e.g., MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH">
+
+        <label for="destinationShort">Destination Short Name (used in button labels):</label>
+        <input type="text" id="destinationShort" placeholder="e.g., MaineGeneral">
+
+        <button id="saveSettings">Save Settings</button>
+        <div id="settingsStatus"></div>
+    </div>
+
+    <div class="divider"></div>
+
     <h2>
         Reload MEFIRS after clicking this:
         <button id="prepareButton">Prep</button>

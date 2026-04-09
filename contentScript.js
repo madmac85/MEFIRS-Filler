@@ -1,5 +1,13 @@
 console.log('[MEFIRS Filler] Script loaded in frame: ' + window.location.href);
 
+// ─── Settings ─────────────────────────────────────────────────────────────────
+
+const SETTINGS = {
+    dispatchLocation: 'Augusta Fire Department',
+    destinationFull: 'MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH',
+    destinationShort: 'MaineGeneral'
+};
+
 // ─── Utilities ────────────────────────────────────────────────────────────────
 
 /**
@@ -577,7 +585,7 @@ async function automatePPE(nextStepCallback) {
 // ─── Shared Tab Handlers ───────────────────────────────────────────────────────
 
 async function sharedTransportDestTab(config) {
-    await setDropdownByLabel('Destination/Transferred To', 'MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH');
+    await setDropdownByLabel('Destination/Transferred To', SETTINGS.destinationFull);
     await setMultiselectByLabel('Reason for Choosing Destination', 'Closest Facility');
     await pressButton(['Wheeled Stretcher']);  // How Patient Was Moved From Ambulance
     await setDropdownByLabel('Hospital Designation', 'Emergency Department');
@@ -604,7 +612,7 @@ async function sharedTransportInfoTab(config) {
 
 function callEmergentMaineGeneral() {
     clearAutomatedFields();
-    showStatusBanner('running', 'MEFIRS Filler: Running Emergent to MaineGeneral...');
+    showStatusBanner('running', 'MEFIRS Filler: Running Emergent to ' + SETTINGS.destinationShort + '...');
     showInitialConfigPopup(async (config) => {
         try {
         await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
@@ -633,7 +641,7 @@ function callEmergentMaineGeneral() {
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
             if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
-            await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
+            await setDropdownByLabel('Vehicle Dispatch Location', SETTINGS.dispatchLocation);
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
 
             // Transport tab
@@ -650,7 +658,7 @@ function callEmergentMaineGeneral() {
             await sleep(400);
             await sharedTransportDestTab(config);
 
-            showStatusBanner('done', 'MEFIRS Filler: Emergent to MaineGeneral complete');
+            showStatusBanner('done', 'MEFIRS Filler: Emergent to ' + SETTINGS.destinationShort + ' complete');
             hideStatusBanner(4000);
             } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
         });
@@ -662,7 +670,7 @@ function callEmergentMaineGeneral() {
 
 function callNonEmergentMaineGeneral() {
     clearAutomatedFields();
-    showStatusBanner('running', 'MEFIRS Filler: Running Non-Emergent to MaineGeneral...');
+    showStatusBanner('running', 'MEFIRS Filler: Running Non-Emergent to ' + SETTINGS.destinationShort + '...');
     showInitialConfigPopup(async (config) => {
         try {
         await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
@@ -688,7 +696,7 @@ function callNonEmergentMaineGeneral() {
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
             if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
-            await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
+            await setDropdownByLabel('Vehicle Dispatch Location', SETTINGS.dispatchLocation);
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
 
             // Transport tab
@@ -696,7 +704,7 @@ function callNonEmergentMaineGeneral() {
             await sleep(600);
             await sharedTransportInfoTab(config);
 
-            showStatusBanner('done', 'MEFIRS Filler: Non-Emergent to MaineGeneral complete');
+            showStatusBanner('done', 'MEFIRS Filler: Non-Emergent to ' + SETTINGS.destinationShort + ' complete');
             hideStatusBanner(4000);
             } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
         });
@@ -731,7 +739,7 @@ function liftAssist() {
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
             if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
-            await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
+            await setDropdownByLabel('Vehicle Dispatch Location', SETTINGS.dispatchLocation);
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
 
             // Billing (no transport for lift assist)
@@ -765,8 +773,12 @@ async function patientTab(config) {
 // ─── Button Injection ──────────────────────────────────────────────────────────
 
 function buttonWatcher() {
-    const fns   = [callEmergentMaineGeneral, callNonEmergentMaineGeneral, liftAssist];
-    const names = ['Emergent to MaineGeneral', 'Non-Emergent to MaineGeneral', 'Lift Assist'];
+    const fns = [callEmergentMaineGeneral, callNonEmergentMaineGeneral, liftAssist];
+    const names = [
+        'Emergent to ' + SETTINGS.destinationShort,
+        'Non-Emergent to ' + SETTINGS.destinationShort,
+        'Lift Assist'
+    ];
 
     function tryAddButtons() {
         const saveButton = Array.from(document.querySelectorAll('button, .button-control'))
@@ -839,5 +851,10 @@ function searchDDS(field) {
 
 // ─── Init ──────────────────────────────────────────────────────────────────────
 
-buttonWatcher();
-fieldWatcher();
+chrome.storage.sync.get(SETTINGS, (saved) => {
+    Object.assign(SETTINGS, saved);
+    log('Settings loaded: dispatch=' + SETTINGS.dispatchLocation +
+        ', dest=' + SETTINGS.destinationShort);
+    buttonWatcher();
+    fieldWatcher();
+});
