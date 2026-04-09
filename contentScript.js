@@ -105,18 +105,44 @@ function hideStatusBanner(delay) {
 
 /**
  * Click a menu/section navigation item. Tries each name as a fallback until
- * one is found. Waits for the #sections container to be present first.
+ * one is found. Searches broadly — first in #sections with known classes,
+ * then falls back to finding any visible element whose text matches exactly.
  */
 async function pressMenu(names) {
-    const sections = await waitForElement('#sections', { timeout: 6000 });
-    if (!sections) { warn('pressMenu: #sections container not found'); return; }
+    await sleep(300);
 
     for (const name of names) {
-        const nodes = Array.from(sections.querySelectorAll(
-            '.text-padding, .form-navigation-section-caption-text'
-        ));
-        const target = nodes.find(n => cleanText(n.textContent) === name);
-        if (target) { target.click(); log('pressMenu: "' + name + '"'); return; }
+        // Strategy 1: original selectors in #sections
+        const sections = document.querySelector('#sections');
+        if (sections) {
+            const nodes = Array.from(sections.querySelectorAll(
+                '.text-padding, .form-navigation-section-caption-text'
+            ));
+            const target = nodes.find(n => cleanText(n.textContent) === name);
+            if (target) {
+                target.click();
+                log('pressMenu: "' + name + '"');
+                await sleep(500);
+                return;
+            }
+        }
+
+        // Strategy 2: broad search — find smallest visible element with exact text
+        const candidates = Array.from(
+            document.querySelectorAll('a, span, div, li, button, td, label, p')
+        ).filter(el =>
+            el.offsetParent !== null &&
+            el.textContent.length < 150 &&
+            cleanText(el.textContent) === name
+        );
+
+        if (candidates.length > 0) {
+            candidates.sort((a, b) => a.textContent.length - b.textContent.length);
+            candidates[0].click();
+            log('pressMenu: "' + name + '" (broad, tag=' + candidates[0].tagName + ')');
+            await sleep(500);
+            return;
+        }
     }
     warn('pressMenu: none found in [' + names.join(', ') + ']');
 }
@@ -126,7 +152,7 @@ async function pressMenu(names) {
  * (they are independent toggle selections, not fallbacks).
  * Waits for at least one button from the list to appear before clicking.
  */
-async function pressButton(names, { timeout = 3000 } = {}) {
+async function pressButton(names, { timeout = 5000 } = {}) {
     // Wait until at least one button from the list exists on the page
     const appeared = await waitForElement(
         () => Array.from(document.querySelectorAll('.smart-list-button-label, .smart-list-button'))
@@ -142,6 +168,7 @@ async function pressButton(names, { timeout = 3000 } = {}) {
     for (const name of names) {
         const target = nodes.find(n => cleanText(n.textContent) === name);
         if (target) { target.click(); log('pressButton: "' + name + '"'); }
+        else { warn('pressButton: "' + name + '" not found among visible buttons'); }
     }
 }
 
@@ -244,7 +271,7 @@ function findFieldContainer(labelName) {
  */
 async function setDropdownByLabel(labelName, value, { timeout = 5000 } = {}) {
     if (!value) return;
-    const container = findFieldContainer(labelName);
+    const container = await waitForElement(() => findFieldContainer(labelName), { timeout });
     if (!container) { warn('setDropdownByLabel: container for "' + labelName + '" not found'); return; }
 
     const trigger = container.querySelector(
@@ -270,7 +297,7 @@ async function setDropdownByLabel(labelName, value, { timeout = 5000 } = {}) {
  */
 async function setMultiselectByLabel(labelName, value, { timeout = 5000 } = {}) {
     if (!value) return;
-    const container = findFieldContainer(labelName);
+    const container = await waitForElement(() => findFieldContainer(labelName), { timeout });
     if (!container) { warn('setMultiselectByLabel: container for "' + labelName + '" not found'); return; }
 
     const trigger = container.querySelector(
@@ -293,8 +320,8 @@ async function setMultiselectByLabel(labelName, value, { timeout = 5000 } = {}) 
  * Set a text input value by finding the input inside its label container.
  * Fires input/change/blur events so KnockoutJS bindings pick up the change.
  */
-function setInput(labelName, value) {
-    const container = findFieldContainer(labelName);
+async function setInput(labelName, value, { timeout = 5000 } = {}) {
+    const container = await waitForElement(() => findFieldContainer(labelName), { timeout });
     const target = container ? container.querySelector('input') : null;
     if (target) {
         target.value = value;
@@ -596,7 +623,7 @@ async function sharedTransportDestTab(config) {
 }
 
 async function sharedTransportInfoTab(config) {
-    setInput('Number of Patients Transported', '1');
+    await setInput('Number of Patients Transported', '1');
     await pressButton(['Non-Emergent', 'No Lights or Sirens']);
     await pressButton(['Ground-Ambulance'], { timeout: 5000 });
     await pressButton(['Wheeled Stretcher'], { timeout: 5000 });
@@ -639,7 +666,7 @@ function callEmergentMaineGeneral() {
             await setMultiselectByLabel('Type of Dispatch Delay', 'None/No Delay');
             await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
-            if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
+            if (config.emdCode) await setInput('EMD Determinant Code', config.emdCode);
             if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
             await setDropdownByLabel('Vehicle Dispatch Location', SETTINGS.dispatchLocation);
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
@@ -647,7 +674,7 @@ function callEmergentMaineGeneral() {
             // Transport tab
             await pressMenu(['Transport', 'Transport Info']);
             await sleep(600);
-            setInput('Number of Patients Transported', '1');
+            await setInput('Number of Patients Transported', '1');
             await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens']);
             await pressButton(['Ground-Ambulance'], { timeout: 5000 });
             await pressButton(['Wheeled Stretcher'], { timeout: 5000 });
@@ -694,7 +721,7 @@ function callNonEmergentMaineGeneral() {
             await setMultiselectByLabel('Type of Dispatch Delay', 'None/No Delay');
             await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
-            if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
+            if (config.emdCode) await setInput('EMD Determinant Code', config.emdCode);
             if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
             await setDropdownByLabel('Vehicle Dispatch Location', SETTINGS.dispatchLocation);
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
@@ -737,7 +764,7 @@ function liftAssist() {
             await setMultiselectByLabel('Type of Dispatch Delay', 'None/No Delay');
             await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
-            if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
+            if (config.emdCode) await setInput('EMD Determinant Code', config.emdCode);
             if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
             await setDropdownByLabel('Vehicle Dispatch Location', SETTINGS.dispatchLocation);
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
