@@ -222,8 +222,9 @@ function findDropdownItem(type, name) {
  * around the field, not a parent section that contains many fields.
  */
 function findFieldContainer(labelName) {
+    const cleaned = cleanText(labelName);
     const candidates = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
-        .filter(el => el.innerText.includes(labelName));
+        .filter(el => cleanText(el.innerText).includes(cleaned));
     if (candidates.length === 0) return null;
     candidates.sort((a, b) => a.innerText.length - b.innerText.length);
     return candidates[0];
@@ -322,7 +323,7 @@ function clearAutomatedFields() {
 
     targetLabels.forEach(label => {
         const fieldContainer = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
-            .find(el => el.innerText.includes(label));
+            .find(el => cleanText(el.innerText).includes(label));
         if (fieldContainer) {
             const clearIcon = fieldContainer.querySelector(
                 '.fa-times, .fa-close, .koSingleselect-selectedItem-clear, ' +
@@ -333,7 +334,7 @@ function clearAutomatedFields() {
     });
 
     const exposuresSection = Array.from(document.querySelectorAll('.ko-grid-container, #sections'))
-        .find(el => el.innerText.includes('Exposures & PPE'));
+        .find(el => cleanText(el.innerText).includes('Exposures & PPE'));
     if (exposuresSection) {
         Array.from(exposuresSection.querySelectorAll('.fa-times, .fa-close'))
             .filter(btn => btn.closest('.single-row-control, .ko-grid-column'))
@@ -385,6 +386,21 @@ function getDispatchReason(emdCode) {
         37: '37. Interfacility Evaluation/Transfer'
     };
     return map[parseInt(match[1], 10)] || null;
+}
+
+/**
+ * Derive the Dispatch Priority (Patient Acuity) from the EMD code letter.
+ * e.g. "6D3" → letter D → "Delta", "18B39" → letter B → "Bravo"
+ */
+function getDispatchPriority(emdCode) {
+    if (!emdCode) return null;
+    const match = emdCode.match(/[A-Ea-eOo]/);
+    if (!match) return null;
+    const map = {
+        'A': 'Alpha', 'B': 'Bravo', 'C': 'Charlie',
+        'D': 'Delta', 'E': 'Echo', 'O': 'Omega'
+    };
+    return map[match[0].toUpperCase()] || null;
 }
 
 // ─── Config Popup ──────────────────────────────────────────────────────────────
@@ -444,9 +460,10 @@ function showInitialConfigPopup(onComplete) {
     const finish = (emdVal) => {
         document.body.removeChild(overlay);
         onComplete({
-            isSameAddress:   addressSelect.value === 'yes',
-            dispatchReason:  getDispatchReason(emdVal),
-            emdCode:         emdVal
+            isSameAddress:    addressSelect.value === 'yes',
+            dispatchReason:   getDispatchReason(emdVal),
+            dispatchPriority: getDispatchPriority(emdVal),
+            emdCode:          emdVal
         });
     };
 
@@ -476,18 +493,17 @@ function showInitialConfigPopup(onComplete) {
 // ─── PPE Automation ────────────────────────────────────────────────────────────
 
 async function automatePPE(nextStepCallback) {
-    // Click add button — may be smart-list "Add All Crew" or regular button "+ Add"
+    // Click "+ Add" button in the Exposures & PPE section
     const addBtn = await waitForElement(
         () => {
+            // Try smart-list "Add All Crew" first
             const smart = Array.from(document.querySelectorAll('.smart-list-button-label, .smart-list-button'))
                 .find(n => cleanText(n.textContent) === 'Add All Crew');
             if (smart) return smart;
-            return Array.from(document.querySelectorAll('button, .button-control'))
+            // Fall back to any visible button containing "Add" text
+            return Array.from(document.querySelectorAll('button, .button-control, a'))
                 .filter(el => el.offsetParent !== null)
-                .find(el => {
-                    const t = cleanText(el.textContent);
-                    return t === '+ Add' || t === 'Add';
-                });
+                .find(el => /^\+?\s*Add/i.test(cleanText(el.textContent)));
         },
         { timeout: 4000 }
     );
@@ -498,8 +514,8 @@ async function automatePPE(nextStepCallback) {
     // Wait for crew cards to load
     const firstCard = await waitForElement(
         () => Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
-            .find(el => el.innerText.includes('EMS Professional (Crew Member) ID:')),
-        { timeout: 4000 }
+            .find(el => cleanText(el.innerText).includes('EMS Professional (Crew Member) ID')),
+        { timeout: 5000 }
     );
     if (!firstCard) {
         log('automatePPE: no crew cards found, skipping');
@@ -507,16 +523,18 @@ async function automatePPE(nextStepCallback) {
         return;
     }
 
+    await sleep(600); // let all cards finish rendering
+
     const cards = Array.from(document.querySelectorAll('.single-row-control, .ko-grid-column'))
-        .filter(el => el.innerText.includes('EMS Professional (Crew Member) ID:'));
+        .filter(el => cleanText(el.innerText).includes('EMS Professional (Crew Member) ID'));
 
     for (let i = 0; i < cards.length; i++) {
         const card = cards[i];
 
-        // Find the PPE-specific multi-select by locating the container labeled
-        // "Personal Protective Equipment Used" within this card
+        // Find the PPE-specific multi-select within this card
         const ppeContainers = Array.from(card.querySelectorAll('.single-row-control, .ko-grid-column'));
-        const ppeContainer = ppeContainers.find(el => el.innerText.includes('Personal Protective Equipment Used'));
+        const ppeContainer = ppeContainers.find(el =>
+            cleanText(el.innerText).includes('Personal Protective Equipment Used'));
         let trigger;
         if (ppeContainer) {
             trigger = ppeContainer.querySelector(
@@ -542,8 +560,9 @@ async function automatePPE(nextStepCallback) {
         if (glovesOption) {
             glovesOption.click();
             await sleep(400);
-            const okButton = Array.from(card.querySelectorAll('button, .button-control'))
-                .find(btn => cleanText(btn.innerText).includes('OK'));
+            // OK button may be inside card or at its boundary — search broadly
+            const okButton = Array.from(document.querySelectorAll('button, .button-control'))
+                .find(btn => btn.offsetParent !== null && cleanText(btn.innerText) === 'OK');
             if (okButton) { okButton.click(); log('automatePPE: card ' + i + ' done'); }
             else { warn('automatePPE: OK button not found on card ' + i); }
             await sleep(500);
@@ -570,7 +589,9 @@ async function sharedTransportDestTab(config) {
 
 async function sharedTransportInfoTab(config) {
     setInput('Number of Patients Transported', '1');
-    await pressButton(['Non-Emergent', 'No Lights or Sirens', 'Ground-Ambulance', 'Wheeled Stretcher']);
+    await pressButton(['Non-Emergent', 'No Lights or Sirens']);
+    await pressButton(['Ground-Ambulance'], { timeout: 5000 });
+    await pressButton(['Wheeled Stretcher'], { timeout: 5000 });
     await setMultiselectByLabel('Type of Transport Delay', 'None/No Delay');
     await setMultiselectByLabel('Type of Turn-Around Delay', 'None/No Delay');
     await setMultiselectByLabel('Position of Patient During Transport', 'Semi-Fowlers');
@@ -611,6 +632,7 @@ function callEmergentMaineGeneral() {
             await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
+            if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
             await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
 
@@ -618,8 +640,9 @@ function callEmergentMaineGeneral() {
             await pressMenu(['Transport', 'Transport Info']);
             await sleep(600);
             setInput('Number of Patients Transported', '1');
-            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens',
-                'Ground-Ambulance', 'Wheeled Stretcher']);
+            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens']);
+            await pressButton(['Ground-Ambulance'], { timeout: 5000 });
+            await pressButton(['Wheeled Stretcher'], { timeout: 5000 });
             await setMultiselectByLabel('Type of Transport Delay', 'None/No Delay');
             await setMultiselectByLabel('Type of Turn-Around Delay', 'None/No Delay');
             await setMultiselectByLabel('Position of Patient During Transport', 'Semi-Fowlers');
@@ -664,6 +687,7 @@ function callNonEmergentMaineGeneral() {
             await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
+            if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
             await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
 
@@ -706,6 +730,7 @@ function liftAssist() {
             await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
             await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
             if (config.emdCode) setInput('EMD Determinant Code', config.emdCode);
+            if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
             await setDropdownByLabel('Vehicle Dispatch Location', 'Augusta Fire Department');
             if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
 
