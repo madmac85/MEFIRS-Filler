@@ -1,3 +1,2646 @@
+const MEFIRS_SCHEMA = [
+  {
+    "priority": 1,
+    "section": "Run Form Start",
+    "panel": "Responding Crew",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 2,
+    "section": "Run Form Start",
+    "panel": "Responding Crew",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 3,
+    "section": "Run Form Start",
+    "panel": "Responding Crew",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 4,
+    "section": "Run Form Start",
+    "panel": "Responding Crew",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 5,
+    "section": "Run Form Start",
+    "panel": "Responding Unit Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 6,
+    "section": "Run Form Start",
+    "panel": "Responding Unit Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 7,
+    "section": "Run Form Start",
+    "panel": "Responding Unit Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 8,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 9,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 10,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 11,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 12,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 13,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 14,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 15,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 16,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 17,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 18,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 19,
+    "section": "Run Form Start",
+    "panel": "EMS Times",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 20,
+    "section": "Run Form Start",
+    "panel": "Dispositions",
+    "dataElement": "Type of Service Requested",
+    "valueSetByScript": "Emergency Response (Primary Response Area)",
+    "type": ""
+  },
+  {
+    "priority": 21,
+    "section": "Run Form Start",
+    "panel": "Dispositions",
+    "dataElement": "Incident Disposition (Button)",
+    "valueSetByScript": "Non-Patient Incident (Not Otherwise Listed)",
+    "type": "button"
+  },
+  {
+    "priority": 22,
+    "section": "Run Form Start",
+    "panel": "Dispositions",
+    "dataElement": "Patient Care (Button)",
+    "valueSetByScript": "Patient Evaluated and Care Provided",
+    "type": "button"
+  },
+  {
+    "priority": 23,
+    "section": "Run Form Start",
+    "panel": "Dispositions",
+    "dataElement": "Crew Care Disposition (Button)",
+    "valueSetByScript": "Initiated and Continued Primary Care",
+    "type": "button"
+  },
+  {
+    "priority": 24,
+    "section": "Run Form Start",
+    "panel": "Dispositions",
+    "dataElement": "Transport Disposition (Button)",
+    "valueSetByScript": "Transport by This EMS Unit (This Crew Only)",
+    "type": "button"
+  },
+  {
+    "priority": 25,
+    "section": "Run Form Start",
+    "panel": "Dispositions",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 26,
+    "section": "Run Form Start",
+    "panel": "Dispositions",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 27,
+    "section": "Run Form Start",
+    "panel": "Dispositions",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 28,
+    "section": "Dispatch",
+    "panel": "Dispatch Information",
+    "dataElement": "Dispatch Reason",
+    "valueSetByScript": "DYNAMIC",
+    "type": ""
+  },
+  {
+    "priority": 29,
+    "section": "Dispatch",
+    "panel": "Dispatch Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 30,
+    "section": "Dispatch",
+    "panel": "Dispatch Information",
+    "dataElement": "Dispatch Priority (Patient Acuity)",
+    "valueSetByScript": "DYNAMIC",
+    "type": ""
+  },
+  {
+    "priority": 31,
+    "section": "Dispatch",
+    "panel": "Dispatch Information",
+    "dataElement": "EMD Determinant Code",
+    "valueSetByScript": "DYNAMIC",
+    "type": ""
+  },
+  {
+    "priority": 32,
+    "section": "Dispatch",
+    "panel": "Dispatch Information",
+    "dataElement": "EMD Performed",
+    "valueSetByScript": "CLEAR",
+    "type": ""
+  },
+  {
+    "priority": 33,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 34,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 35,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 36,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 2,
+    "section": "",
+    "panel": "",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 38,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 39,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 40,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 41,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 42,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 43,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 44,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 45,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 46,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 47,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 48,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 49,
+    "section": "Dispatch",
+    "panel": "Incident Address",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 50,
+    "section": "Dispatch",
+    "panel": "Agency Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 51,
+    "section": "Dispatch",
+    "panel": "Agency Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 52,
+    "section": "Dispatch",
+    "panel": "Software",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 53,
+    "section": "Dispatch",
+    "panel": "Software",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 54,
+    "section": "Dispatch",
+    "panel": "Software",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 55,
+    "section": "Dispatch",
+    "panel": "Software",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 56,
+    "section": "Dispatch",
+    "panel": "Software",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 3,
+    "section": "",
+    "panel": "",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 58,
+    "section": "Dispatch",
+    "panel": "Software",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 59,
+    "section": "Response",
+    "panel": "Response To Scene",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 60,
+    "section": "Response",
+    "panel": "Response To Scene",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 61,
+    "section": "Dispatch",
+    "panel": "Response To Scene",
+    "dataElement": "Vehicle Dispatch Location",
+    "valueSetByScript": "Augusta Fire Department",
+    "type": ""
+  },
+  {
+    "priority": 62,
+    "section": "Dispatch",
+    "panel": "Response To Scene",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 63,
+    "section": "Dispatch",
+    "panel": "Response To Scene",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 64,
+    "section": "Response",
+    "panel": "All Delays",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 65,
+    "section": "Dispatch",
+    "panel": "All Delays",
+    "dataElement": "Type of Dispatch Delay",
+    "valueSetByScript": "None/No Delay",
+    "type": ""
+  },
+  {
+    "priority": 66,
+    "section": "Dispatch",
+    "panel": "All Delays",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 67,
+    "section": "Response",
+    "panel": "All Delays",
+    "dataElement": "Type of Response Delay",
+    "valueSetByScript": "None/No Delay",
+    "type": ""
+  },
+  {
+    "priority": 68,
+    "section": "Response",
+    "panel": "All Delays",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 69,
+    "section": "Response",
+    "panel": "All Delays",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 70,
+    "section": "Response",
+    "panel": "All Delays",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 71,
+    "section": "Transport",
+    "panel": "All Delays",
+    "dataElement": "Type of Transport Delay",
+    "valueSetByScript": "None/No Delay",
+    "type": ""
+  },
+  {
+    "priority": 72,
+    "section": "Transport",
+    "panel": "All Delays",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 73,
+    "section": "Response",
+    "panel": "All Delays",
+    "dataElement": "Type of Turn-Around Delay",
+    "valueSetByScript": "None/No Delay",
+    "type": ""
+  },
+  {
+    "priority": 74,
+    "section": "Response",
+    "panel": "All Delays",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 75,
+    "section": "Arrival",
+    "panel": "Scene Details",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 76,
+    "section": "Arrival",
+    "panel": "Scene Details",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 77,
+    "section": "Arrival",
+    "panel": "Scene Details",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 78,
+    "section": "Arrival",
+    "panel": "Scene Details",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 79,
+    "section": "Arrival",
+    "panel": "Scene Details",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 80,
+    "section": "Arrival",
+    "panel": "Scene Details",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 81,
+    "section": "Arrival",
+    "panel": "Scene Details",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 82,
+    "section": "Arrival",
+    "panel": "Scene Details",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 83,
+    "section": "Arrival",
+    "panel": "Scene Details",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 84,
+    "section": "Arrival",
+    "panel": "Scene Location Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 85,
+    "section": "Arrival",
+    "panel": "Scene Location Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 86,
+    "section": "Arrival",
+    "panel": "Scene Location Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 87,
+    "section": "Arrival",
+    "panel": "Scene Location Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 88,
+    "section": "Arrival",
+    "panel": "Scene Location Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 89,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "Find Patient (Button)",
+    "valueSetByScript": "Find a Repeat Patient",
+    "type": "button"
+  },
+  {
+    "priority": 90,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 91,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 92,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 93,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 94,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 95,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 96,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 97,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 98,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 99,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 100,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 101,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 102,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 103,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 104,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 105,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 106,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "Patient Address (Button)",
+    "valueSetByScript": "Patient Address Same as Incident Address",
+    "type": "button"
+  },
+  {
+    "priority": 107,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 108,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "Veteran Status / Data Unavailable (Button)",
+    "valueSetByScript": "Not Recorded",
+    "type": "button"
+  },
+  {
+    "priority": 109,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 110,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 111,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 112,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 113,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 114,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 115,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 116,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 117,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 118,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 119,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 120,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 121,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 122,
+    "section": "Arrival",
+    "panel": "Patient Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 123,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 124,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 125,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 126,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 127,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 128,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 129,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 130,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 131,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 132,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 133,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 134,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 135,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 136,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 137,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 138,
+    "section": "Arrival",
+    "panel": "Patient Closest Relative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 139,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 140,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 141,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 142,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 143,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 144,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 145,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 146,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 147,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "Barriers to Patient Care",
+    "valueSetByScript": "CLEAR",
+    "type": ""
+  },
+  {
+    "priority": 148,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 149,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 150,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 151,
+    "section": "Assessment",
+    "panel": "Patient Complaint",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 152,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 153,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 154,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 155,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 156,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 157,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 158,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 159,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 160,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 161,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 162,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 163,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 164,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 165,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 166,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 167,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 168,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 169,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 170,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 171,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 172,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 173,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 174,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 175,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 176,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 177,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 178,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 179,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 180,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 181,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 182,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 183,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 184,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 185,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 186,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 187,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 188,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 189,
+    "section": "Assessment",
+    "panel": "Patient Assessment",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 190,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 191,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 192,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 193,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 194,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 195,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 196,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 197,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 198,
+    "section": "Assessment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 199,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 200,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 201,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 202,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 203,
+    "section": "Assessment",
+    "panel": "Patient History",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 204,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 205,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 206,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 207,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 208,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 209,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 210,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 211,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 212,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 213,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 214,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 215,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 216,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 217,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 218,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 219,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 220,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 221,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 222,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 223,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 224,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 225,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 226,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 227,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 228,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 229,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 230,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 231,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 232,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 233,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 234,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 235,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 236,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 237,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 238,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 239,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 240,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 241,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 242,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 243,
+    "section": "Assessment",
+    "panel": "Vital Signs & Stroke Assessments",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 244,
+    "section": "Assessment",
+    "panel": "Protocols",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 245,
+    "section": "Assessment",
+    "panel": "Protocols",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 246,
+    "section": "Assessment",
+    "panel": "Injury Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 247,
+    "section": "Assessment",
+    "panel": "Injury Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 248,
+    "section": "Assessment",
+    "panel": "Injury Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 1,
+    "section": "",
+    "panel": "",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 3,
+    "section": "",
+    "panel": "",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 251,
+    "section": "Assessment",
+    "panel": "Crash Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 252,
+    "section": "Assessment",
+    "panel": "Crash Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 253,
+    "section": "Assessment",
+    "panel": "Crash Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 254,
+    "section": "Assessment",
+    "panel": "Crash Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 255,
+    "section": "Assessment",
+    "panel": "Crash Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 256,
+    "section": "Assessment",
+    "panel": "Crash Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 257,
+    "section": "Assessment",
+    "panel": "Crash Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 258,
+    "section": "Assessment",
+    "panel": "Crash Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 259,
+    "section": "Assessment",
+    "panel": "Infectious Diseases",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 260,
+    "section": "Assessment",
+    "panel": "Infectious Diseases",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 261,
+    "section": "Assessment",
+    "panel": "Infectious Diseases",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 262,
+    "section": "Assessment",
+    "panel": "Infectious Diseases",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 263,
+    "section": "Assessment",
+    "panel": "Infectious Diseases",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 264,
+    "section": "Assessment",
+    "panel": "Infectious Diseases",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 265,
+    "section": "Assessment",
+    "panel": "Infectious Diseases",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 266,
+    "section": "Assessment",
+    "panel": "Infectious Diseases",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 267,
+    "section": "Assessment",
+    "panel": "Infectious Diseases",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 268,
+    "section": "Assessment",
+    "panel": "Infectious Diseases",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 269,
+    "section": "Assessment",
+    "panel": "Infectious Disease",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 270,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 271,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 272,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 273,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 274,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 275,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 276,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 277,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 278,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 279,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 280,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 281,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 282,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 283,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 284,
+    "section": "Treatment",
+    "panel": "Medication Administration",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 285,
+    "section": "Treatment",
+    "panel": "Procedures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 286,
+    "section": "Treatment",
+    "panel": "Procedures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 287,
+    "section": "Treatment",
+    "panel": "Procedures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 288,
+    "section": "Treatment",
+    "panel": "Procedures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 289,
+    "section": "Treatment",
+    "panel": "Procedures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 290,
+    "section": "Treatment",
+    "panel": "Procedures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 291,
+    "section": "Treatment",
+    "panel": "Procedures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 292,
+    "section": "Treatment",
+    "panel": "Procedures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 293,
+    "section": "Treatment",
+    "panel": "Procedures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 294,
+    "section": "Treatment",
+    "panel": "Procedures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 295,
+    "section": "Treatment",
+    "panel": "EKG",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 296,
+    "section": "Treatment",
+    "panel": "EKG",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 297,
+    "section": "Transport",
+    "panel": "Transport Information",
+    "dataElement": "Number of Patients Transported",
+    "valueSetByScript": "1",
+    "type": ""
+  },
+  {
+    "priority": 298,
+    "section": "Transport",
+    "panel": "Transport Information",
+    "dataElement": "Position of Patient During Transport",
+    "valueSetByScript": "Semi-Fowlers",
+    "type": ""
+  },
+  {
+    "priority": 299,
+    "section": "Transport",
+    "panel": "Transport Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 300,
+    "section": "Transport",
+    "panel": "Transport Information",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 301,
+    "section": "Transport",
+    "panel": "Destination Info",
+    "dataElement": "Destination/Transferred To",
+    "valueSetByScript": "DYNAMIC",
+    "type": ""
+  },
+  {
+    "priority": 302,
+    "section": "Transport",
+    "panel": "Destination Info",
+    "dataElement": "Reason for Choosing Destination",
+    "valueSetByScript": "Closest Facility",
+    "type": ""
+  },
+  {
+    "priority": 303,
+    "section": "Transport",
+    "panel": "Physician Certification Statement",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 304,
+    "section": "",
+    "panel": "",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 305,
+    "section": "Transport",
+    "panel": "Physician Certification Statement",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 306,
+    "section": "Transport",
+    "panel": "Physician Certification Statement",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 307,
+    "section": "Agency Supplemental Questions",
+    "panel": "Agency Supplemental Questions",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 308,
+    "section": "Narrative",
+    "panel": "Narrative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 309,
+    "section": "Narrative",
+    "panel": "Narrative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 310,
+    "section": "Narrative",
+    "panel": "Narrative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 311,
+    "section": "Narrative",
+    "panel": "Narrative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 312,
+    "section": "Narrative",
+    "panel": "Narrative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 313,
+    "section": "Narrative",
+    "panel": "Procedures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 314,
+    "section": "Narrative",
+    "panel": "Narrative",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 315,
+    "section": "Narrative",
+    "panel": "Exposures & PPE",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 316,
+    "section": "Narrative",
+    "panel": "Exposures & PPE",
+    "dataElement": "Personal Protective Equipment Used",
+    "valueSetByScript": "Gloves",
+    "type": "ppe_automation"
+  },
+  {
+    "priority": 317,
+    "section": "Billing Info",
+    "panel": "Insurance Info",
+    "dataElement": "Primary Method of Payment",
+    "valueSetByScript": "No Insurance Identified",
+    "type": ""
+  },
+  {
+    "priority": 318,
+    "section": "Billing Info",
+    "panel": "Insurance Info",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 319,
+    "section": "Billing Info",
+    "panel": "Insurance Info",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 320,
+    "section": "Billing Info",
+    "panel": "Insurance Info",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 321,
+    "section": "Billing Info",
+    "panel": "Insurance Info",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 322,
+    "section": "Billing Info",
+    "panel": "Insurance Info",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 323,
+    "section": "Billing Info",
+    "panel": "Physician Certification Statement",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 324,
+    "section": "Signatures",
+    "panel": "Signatures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 325,
+    "section": "Signatures",
+    "panel": "Signatures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 326,
+    "section": "Signatures",
+    "panel": "Signatures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 327,
+    "section": "Signatures",
+    "panel": "Signatures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 328,
+    "section": "Signatures",
+    "panel": "Signatures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 329,
+    "section": "Signatures",
+    "panel": "Signatures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  },
+  {
+    "priority": 330,
+    "section": "Signatures",
+    "panel": "Signatures",
+    "dataElement": "",
+    "valueSetByScript": "",
+    "type": ""
+  }
+];
+
 console.log('[MEFIRS Filler] Script loaded in frame: ' + window.location.href);
 
 
@@ -1220,354 +3863,305 @@ async function automatePPE(nextStepCallback) {
 
 
 
-// ─── Shared Tab Handlers ───────────────────────────────────────────────────────
 
+// ─── Advanced Navigation Engine ──────────────────────────────────────────────
 
+/**
+ * Takes a section name and a panel name, then expands the section (if not already)
+ * and clicks the panel to load the required fields.
+ */
+async function navigateToPanel(sectionName, panelName) {
+    if (!sectionName && !panelName) return;
 
-async function sharedTransportDestTab(config) {
+    // Some panels don't have sections associated in the list (or it's implicit)
+    // We will find the panel globally if section is missing.
 
-    await setDropdownByLabel('Destination/Transferred To', SETTINGS.destinationFull);
+    const sectionsContainer = document.querySelector('#sections');
+    if (!sectionsContainer) {
+        warn('navigateToPanel: #sections not found');
+        return;
+    }
 
-    await setMultiselectByLabel('Reason for Choosing Destination', 'Closest Facility');
+    if (sectionName) {
+        const sections = Array.from(sectionsContainer.querySelectorAll('.section-wrapper'));
+        let targetSectionWrapper = null;
+        for (const wrap of sections) {
+            const labelEl = wrap.querySelector('.section .text-padding');
+            if (labelEl && cleanText(labelEl.textContent) === sectionName) {
+                targetSectionWrapper = wrap;
+                break;
+            }
+        }
 
-    await pressButton(['Wheeled Stretcher']);  // How Patient Was Moved From Ambulance
+        if (targetSectionWrapper) {
+            const isExpanded = targetSectionWrapper.querySelector('.panel-wrapper') !== null;
+            if (!isExpanded) {
+                const sectionBtn = targetSectionWrapper.querySelector('.section');
+                if (sectionBtn) {
+                    sectionBtn.click();
+                    log('Expanded section: "' + sectionName + '"');
+                    await sleep(500); // wait for knockout to render
+                }
+            }
+        }
+    }
 
-    await setDropdownByLabel('Hospital Designation', 'Emergency Department');
+    if (panelName) {
+        const panels = Array.from(sectionsContainer.querySelectorAll('.panel'));
+        const targetPanel = panels.find(p => {
+            const labelEl = p.querySelector('.text-padding');
+            return labelEl && cleanText(labelEl.textContent) === panelName;
+        });
 
-    await pressMenu(['Billing Information']);
-
-    await sleep(400);
-
-    await setDropdownByLabel('Primary Method of Payment', 'No Insurance Identified');
-
-    await patientTab(config);
-
+        if (targetPanel) {
+            targetPanel.click();
+            log('Clicked panel: "' + panelName + '"');
+            await sleep(800); // Wait for the main pane to load the form
+        } else {
+            // Fallback to broad pressMenu logic just in case it's a top-level item like Billing Information
+            log('Panel "' + panelName + '" not found in standard tree, trying broad pressMenu...');
+            await pressMenu([panelName]);
+        }
+    }
 }
 
-
-
-async function sharedTransportInfoTab(config) {
-
-    await setInput('Number of Patients Transported', '1');
-
-    await pressButton(['Non-Emergent', 'No Lights or Sirens']);
-
-    await pressButton(['Ground-Ambulance'], { timeout: 5000 });
-
-    await pressButton(['Wheeled Stretcher'], { timeout: 5000 });
-
-    await setMultiselectByLabel('Type of Transport Delay', 'None/No Delay');
-
-    await setMultiselectByLabel('Type of Turn-Around Delay', 'None/No Delay');
-
-    await setMultiselectByLabel('Position of Patient During Transport', 'Semi-Fowlers');
-
-    await pressMenu(['Disposition Destination']);
-
-    await sleep(400);
-
-    await sharedTransportDestTab(config);
-
+async function automatePPE_Promise() {
+    return new Promise(resolve => {
+        automatePPE(() => { resolve(); });
+    });
 }
 
+/**
+ * Main execution engine based on the data schema.
+ * @param {Array} workflowConfig - Array of objects defining values for this specific workflow
+ *   Format: [{ priority: 20, value: 'Emergency Response...', type: 'dropdown' }, ...]
+ */
+async function processWorkflow(workflowConfig, configPopupData) {
+    let currentSection = null;
+    let currentPanel = null;
 
+    // Filter schema to only include items configured for this workflow
+    const activeSteps = MEFIRS_SCHEMA
+        .filter(step => step.dataElement && step.dataElement !== '')
+        .map(step => {
+            const config = workflowConfig.find(c => c.priority === step.priority);
+            if (config) {
+                let val = config.value;
+                // Handle dynamic values from the popup config
+                if (val === 'DYNAMIC_EMD_REASON') val = configPopupData.dispatchReason;
+                if (val === 'DYNAMIC_EMD_PRIORITY') val = configPopupData.dispatchPriority;
+                if (val === 'DYNAMIC_EMD_CODE') val = configPopupData.emdCode;
+                if (val === 'DYNAMIC_DESTINATION') val = SETTINGS.destinationFull;
 
-// ─── Workflow: Emergent to MaineGeneral ────────────────────────────────────────
+                return { ...step, valueSetByScript: val, customType: config.type, skip: config.skip };
+            }
+            return null;
+        })
+        .filter(step => step !== null && !step.skip && step.valueSetByScript !== null && step.valueSetByScript !== '')
+        .sort((a, b) => a.priority - b.priority);
 
+    for (const step of activeSteps) {
+        if (step.section !== currentSection || step.panel !== currentPanel) {
+            if (step.section || step.panel) {
+                await navigateToPanel(step.section, step.panel);
+                currentSection = step.section;
+                currentPanel = step.panel;
+            }
+        }
+
+        const valueToSet = step.valueSetByScript;
+        const type = step.customType || step.type;
+
+        if (valueToSet === 'CLEAR') {
+             continue; // Handled by clearAutomatedFields initially
+        }
+
+        try {
+            if (type === 'button') {
+                await pressButton([valueToSet]);
+            } else if (type === 'ppe_automation') {
+                await automatePPE_Promise();
+            } else if (type === 'patient_tab') {
+               await patientTab(configPopupData);
+            } else if (type === 'dropdown') {
+                await setDropdownByLabel(step.dataElement, valueToSet);
+            } else if (type === 'multiselect') {
+                await setMultiselectByLabel(step.dataElement, valueToSet);
+            } else if (type === 'input') {
+                await setInput(step.dataElement, valueToSet);
+            } else {
+                warn('Unknown type for priority ' + step.priority + ' (' + step.dataElement + '), skipping.');
+            }
+        } catch (error) {
+            warn('Failed processing priority ' + step.priority + ': ' + error.message);
+        }
+
+        await sleep(400); // UI breathing room
+    }
+}
+
+// ─── Workflows ─────────────────────────────────────────────────────────────────
+
+const emergentConfig = [
+    { priority: 20, value: 'Emergency Response (Primary Response Area)', type: 'dropdown' },
+    { priority: 22, value: 'Patient Evaluated and Care Provided', type: 'button' },
+    { priority: 23, value: 'Initiated and Continued Primary Care', type: 'button' },
+    { priority: 24, value: 'Transport by This EMS Unit (This Crew Only)', type: 'button' },
+
+    { priority: 28, value: 'DYNAMIC_EMD_REASON', type: 'dropdown' },
+    { priority: 30, value: 'DYNAMIC_EMD_PRIORITY', type: 'dropdown' },
+    { priority: 31, value: 'DYNAMIC_EMD_CODE', type: 'input' },
+    { priority: 61, value: SETTINGS.dispatchLocation, type: 'dropdown' },
+    { priority: 65, value: 'None/No Delay', type: 'multiselect' },
+    { priority: 67, value: 'None/No Delay', type: 'multiselect' },
+    { priority: 71, value: 'None/No Delay', type: 'multiselect' },
+    { priority: 73, value: 'None/No Delay', type: 'multiselect' },
+
+    // Special injection for Response buttons that aren't strictly in the table but required by the existing flow
+    // We'll hook them into an existing priority slot or create custom steps.
+    // Wait, the table *does* have some missing mapping for Response Mode to Scene (59, 60). Let's just use custom code or map them to the priority they belong to.
+    { priority: 59, value: 'Emergent (Immediate Response)', type: 'button' },
+    // "Lights and Sirens"
+    { priority: 60, value: 'Lights and Sirens', type: 'button' },
+    // "Yes, Unknown if Pre-Arrival..."
+    { priority: 64, value: 'Yes, Unknown if Pre-Arrival Instructions Given', type: 'button' },
+    { priority: 66, value: 'Single', type: 'button' }, // Actually Single/Not Recorded
+
+    { priority: 89, value: 'Find a Repeat Patient', type: 'patient_tab' }, // This will just trigger patientTab() which handles it all
+
+    { priority: 297, value: '1', type: 'input' },
+    { priority: 298, value: 'Semi-Fowlers', type: 'multiselect' },
+    { priority: 299, value: 'Emergent (Immediate Response)', type: 'button' }, // Transport Mode From Scene
+    { priority: 300, value: 'No Lights or Sirens', type: 'button' },
+    { priority: 301, value: 'DYNAMIC_DESTINATION', type: 'dropdown' },
+    { priority: 302, value: 'Closest Facility', type: 'multiselect' },
+
+    { priority: 316, value: 'PPE', type: 'ppe_automation' },
+    { priority: 317, value: 'No Insurance Identified', type: 'dropdown' }
+];
+
+const nonEmergentConfig = [
+    { priority: 20, value: 'Emergency Response (Primary Response Area)', type: 'dropdown' },
+    { priority: 22, value: 'Patient Evaluated and Care Provided', type: 'button' },
+    { priority: 23, value: 'Initiated and Continued Primary Care', type: 'button' },
+    { priority: 24, value: 'Transport by This EMS Unit (This Crew Only)', type: 'button' },
+
+    { priority: 28, value: 'DYNAMIC_EMD_REASON', type: 'dropdown' },
+    { priority: 30, value: 'DYNAMIC_EMD_PRIORITY', type: 'dropdown' },
+    { priority: 31, value: 'DYNAMIC_EMD_CODE', type: 'input' },
+    { priority: 61, value: SETTINGS.dispatchLocation, type: 'dropdown' },
+    { priority: 65, value: 'None/No Delay', type: 'multiselect' },
+    { priority: 67, value: 'None/No Delay', type: 'multiselect' },
+    { priority: 71, value: 'None/No Delay', type: 'multiselect' },
+    { priority: 73, value: 'None/No Delay', type: 'multiselect' },
+
+    { priority: 59, value: 'Emergent (Immediate Response)', type: 'button' },
+    { priority: 60, value: 'No Lights or Sirens', type: 'button' },
+    { priority: 64, value: 'Yes, Unknown if Pre-Arrival Instructions Given', type: 'button' },
+    { priority: 66, value: 'Single', type: 'button' },
+
+    { priority: 89, value: 'Find a Repeat Patient', type: 'patient_tab' },
+
+    { priority: 297, value: '1', type: 'input' },
+    { priority: 298, value: 'Semi-Fowlers', type: 'multiselect' },
+    { priority: 299, value: 'Non-Emergent', type: 'button' },
+    { priority: 300, value: 'No Lights or Sirens', type: 'button' },
+    { priority: 301, value: 'DYNAMIC_DESTINATION', type: 'dropdown' },
+    { priority: 302, value: 'Closest Facility', type: 'multiselect' },
+
+    { priority: 316, value: 'PPE', type: 'ppe_automation' },
+    { priority: 317, value: 'No Insurance Identified', type: 'dropdown' }
+];
+
+const liftAssistConfig = [
+    { priority: 20, value: 'Emergency Response (Primary Response Area)', type: 'dropdown' },
+    { priority: 21, value: 'Non-Patient Incident (Not Otherwise Listed)', type: 'button' },
+
+    { priority: 28, value: 'DYNAMIC_EMD_REASON', type: 'dropdown' },
+    { priority: 30, value: 'DYNAMIC_EMD_PRIORITY', type: 'dropdown' },
+    { priority: 31, value: 'DYNAMIC_EMD_CODE', type: 'input' },
+    { priority: 61, value: SETTINGS.dispatchLocation, type: 'dropdown' },
+    { priority: 65, value: 'None/No Delay', type: 'multiselect' },
+    { priority: 67, value: 'None/No Delay', type: 'multiselect' },
+
+    { priority: 59, value: 'Emergent (Immediate Response)', type: 'button' },
+    { priority: 60, value: 'No Lights or Sirens', type: 'button' },
+    { priority: 64, value: 'Yes, Unknown if Pre-Arrival Instructions Given', type: 'button' },
+    { priority: 66, value: 'Single', type: 'button' },
+
+    { priority: 89, value: 'Find a Repeat Patient', type: 'patient_tab' },
+
+    { priority: 316, value: 'PPE', type: 'ppe_automation' },
+    { priority: 317, value: 'No Insurance Identified', type: 'dropdown' }
+];
 
 
 function callEmergentMaineGeneral() {
-
     clearAutomatedFields();
-
     showStatusBanner('running', 'MEFIRS Filler: Running Emergent to ' + SETTINGS.destinationShort + '...');
-
     showInitialConfigPopup(async (config) => {
-
         try {
-
-        await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
-
-        await sleep(600);
-
-
-
-        // Start-Up tab — each selection triggers the next field to appear
-
-        await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
-
-        await pressButton(['Patient Contact Made']);
-
-        // Patient Evaluation/Care appears after Unit Disposition
-
-        await pressButton(['Patient Evaluated and Care Provided'], { timeout: 5000 });
-
-        // Crew Disposition buttons appear after Patient Evaluation/Care
-
-        await pressButton(['Initiated and Continued Primary Care'], { timeout: 5000 });
-
-        // Transport Disposition buttons appear after Crew Disposition
-
-        await pressButton(['Transport by This EMS Unit (This Crew Only)'], { timeout: 5000 });
-
-        await pressMenu(['Exposures & PPE']);
-
-        await sleep(500);
-
-        automatePPE(async () => {
-
-            try {
-
-            // Response tab
-
-            await pressMenu(['Response', 'Response Info']);
-
+            await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
             await sleep(600);
+            await pressButton(['Patient Contact Made']); // This triggers the rest of the dropdowns to appear in Start Up
 
-            await pressButton(['Emergent (Immediate Response)', 'Lights and Sirens']);
+            await processWorkflow(emergentConfig, config);
 
-            await pressButton(['Single', 'Not Recorded']);
-
-            await setMultiselectByLabel('Type of Dispatch Delay', 'None/No Delay');
-
-            await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
-
-            await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
-
-            if (config.emdCode) await setInput('EMD Determinant Code', config.emdCode);
-
-            if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
-
-            await setDropdownByLabel('Vehicle Dispatch Location', SETTINGS.dispatchLocation);
-
-            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
-
-
-
-            // Transport tab
-
-            await pressMenu(['Transport', 'Transport Info']);
-
-            await sleep(600);
-
-            await setInput('Number of Patients Transported', '1');
-
-            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens']);
-
+            // Ground-ambulance and Wheeled stretcher buttons
+            await navigateToPanel('Transport', 'Transport Info');
             await pressButton(['Ground-Ambulance'], { timeout: 5000 });
-
             await pressButton(['Wheeled Stretcher'], { timeout: 5000 });
 
-            await setMultiselectByLabel('Type of Transport Delay', 'None/No Delay');
-
-            await setMultiselectByLabel('Type of Turn-Around Delay', 'None/No Delay');
-
-            await setMultiselectByLabel('Position of Patient During Transport', 'Semi-Fowlers');
-
-            await pressMenu(['Disposition Destination']);
-
-            await sleep(400);
-
-            await sharedTransportDestTab(config);
-
-
+            await navigateToPanel('Transport', 'Destination Info');
+            await pressButton(['Wheeled Stretcher']);  // How Patient Was Moved From Ambulance
+            await setDropdownByLabel('Hospital Designation', 'Emergency Department');
 
             showStatusBanner('done', 'MEFIRS Filler: Emergent to ' + SETTINGS.destinationShort + ' complete');
-
             hideStatusBanner(4000);
-
-            } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
-
-        });
-
         } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
-
     });
-
 }
-
-
-
-// ─── Workflow: Non-Emergent to MaineGeneral ────────────────────────────────────
-
-
 
 function callNonEmergentMaineGeneral() {
-
     clearAutomatedFields();
-
     showStatusBanner('running', 'MEFIRS Filler: Running Non-Emergent to ' + SETTINGS.destinationShort + '...');
-
     showInitialConfigPopup(async (config) => {
-
         try {
-
-        await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
-
-        await sleep(600);
-
-
-
-        // Start-Up tab — each selection triggers the next field to appear
-
-        await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
-
-        await pressButton(['Patient Contact Made']);
-
-        await pressButton(['Patient Evaluated and Care Provided'], { timeout: 5000 });
-
-        await pressButton(['Initiated and Continued Primary Care'], { timeout: 5000 });
-
-        await pressButton(['Transport by This EMS Unit (This Crew Only)'], { timeout: 5000 });
-
-        await pressMenu(['Exposures & PPE']);
-
-        await sleep(500);
-
-        automatePPE(async () => {
-
-            try {
-
-            // Response tab
-
-            await pressMenu(['Response', 'Response Info']);
-
+            await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
             await sleep(600);
+            await pressButton(['Patient Contact Made']);
 
-            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens']);
+            await processWorkflow(nonEmergentConfig, config);
 
-            await pressButton(['Single', 'Not Recorded']);
+            await navigateToPanel('Transport', 'Transport Info');
+            await pressButton(['Ground-Ambulance'], { timeout: 5000 });
+            await pressButton(['Wheeled Stretcher'], { timeout: 5000 });
 
-            await setMultiselectByLabel('Type of Dispatch Delay', 'None/No Delay');
-
-            await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
-
-            await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
-
-            if (config.emdCode) await setInput('EMD Determinant Code', config.emdCode);
-
-            if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
-
-            await setDropdownByLabel('Vehicle Dispatch Location', SETTINGS.dispatchLocation);
-
-            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
-
-
-
-            // Transport tab
-
-            await pressMenu(['Transport', 'Transport Info']);
-
-            await sleep(600);
-
-            await sharedTransportInfoTab(config);
-
-
+            await navigateToPanel('Transport', 'Destination Info');
+            await pressButton(['Wheeled Stretcher']);
+            await setDropdownByLabel('Hospital Designation', 'Emergency Department');
 
             showStatusBanner('done', 'MEFIRS Filler: Non-Emergent to ' + SETTINGS.destinationShort + ' complete');
-
             hideStatusBanner(4000);
-
-            } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
-
-        });
-
         } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
-
     });
-
 }
-
-
-
-// ─── Workflow: Lift Assist ─────────────────────────────────────────────────────
-
-
 
 function liftAssist() {
-
     clearAutomatedFields();
-
     showStatusBanner('running', 'MEFIRS Filler: Running Lift Assist...');
-
     showInitialConfigPopup(async (config) => {
-
         try {
-
-        await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
-
-        await sleep(600);
-
-
-
-        // Start-Up tab — Non-Patient Incident has no Crew/Transport Disposition
-
-        await setDropdownByLabel('Type of Service Requested', 'Emergency Response (Primary Response Area)');
-
-        await pressButton(['Non-Patient Incident (Not Otherwise Listed)']);
-
-        await pressMenu(['Exposures & PPE']);
-
-        await sleep(500);
-
-        automatePPE(async () => {
-
-            try {
-
-            // Response tab
-
-            await pressMenu(['Response', 'Response Info']);
-
+            await pressMenu(['Start Up', 'Start-Up', 'Responding Unit Information']);
             await sleep(600);
 
-            await pressButton(['Emergent (Immediate Response)', 'No Lights or Sirens']);
-
-            await pressButton(['Single', 'Not Recorded']);
-
-            await setMultiselectByLabel('Type of Dispatch Delay', 'None/No Delay');
-
-            await setMultiselectByLabel('Type of Response Delay', 'None/No Delay');
-
-            await pressButton(['Yes, Unknown if Pre-Arrival Instructions Given']);
-
-            if (config.emdCode) await setInput('EMD Determinant Code', config.emdCode);
-
-            if (config.dispatchPriority) await setDropdownByLabel('Dispatch Priority (Patient Acuity)', config.dispatchPriority);
-
-            await setDropdownByLabel('Vehicle Dispatch Location', SETTINGS.dispatchLocation);
-
-            if (config.dispatchReason) await setDropdownByLabel('Dispatch Reason', config.dispatchReason);
-
-
-
-            // Billing (no transport for lift assist)
-
-            await pressMenu(['Billing Information']);
-
-            await sleep(400);
-
-            await setDropdownByLabel('Primary Method of Payment', 'No Insurance Identified');
-
-            await patientTab(config);
-
-
+            await processWorkflow(liftAssistConfig, config);
 
             showStatusBanner('done', 'MEFIRS Filler: Lift Assist complete');
-
             hideStatusBanner(4000);
-
-            } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
-
-        });
-
         } catch (e) { warn('Error: ' + e.message); showStatusBanner('error', 'MEFIRS Filler: Error - ' + e.message); hideStatusBanner(8000); }
-
     });
-
 }
-
-
-
 // ─── Patient Tab ───────────────────────────────────────────────────────────────
 
 
@@ -1770,4 +4364,4 @@ chrome.storage.sync.get(SETTINGS, (saved) => {
 
     fieldWatcher();
 
-});"
+});
