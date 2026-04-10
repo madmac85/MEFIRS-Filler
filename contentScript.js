@@ -8,7 +8,7 @@ console.log('[MEFIRS Filler] Script loaded in frame: ' + window.location.href);
 
 const SETTINGS = {
 
-    dispatchLocation: 'Augusta Fire Department',
+    dispatchLocation: 'Fire',
 
     destinationFull: 'MAINEGENERAL MEDICAL CENTER - ALFOND CENTER FOR HEALTH',
 
