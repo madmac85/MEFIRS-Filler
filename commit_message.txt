@@ -1,0 +1,7 @@
+Fix MEFIRS Chrome extension data entry bugs
+
+- Fixed field labels requiring trailing colons (e.g., 'Response Mode to Scene:').
+- Corrected incorrect schema panel names (e.g., 'Destination Info' to 'Destination Information').
+- Rewrote the `automatePPE` function to properly iterate over all crew members and set the PPE.
+- Added missing priority 75 ('Number of Patients at Scene') to ensure sequence validation.
+- Cleaned up manual delay selection configuration.
