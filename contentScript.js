@@ -2719,6 +2719,16 @@ function sleep(ms) {
 
 
 
+
+function normalizeText(text) {
+    if (!text) return '';
+    // Remove spaces, punctuation, non-alphanumeric chars, convert to lowercase
+    // Also strip out common variations like "info" vs "information" for safer matching
+    let normalized = cleanText(text).replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    normalized = normalized.replace(/information$/, 'info'); // normalize "information" to "info"
+    return normalized;
+}
+
 function cleanText(t) {
 
     return (t || '').replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, ' ').trim();
@@ -2911,7 +2921,7 @@ async function pressMenu(names) {
 
             el.textContent.length < 150 &&
 
-            cleanText(el.textContent) === name
+            (cleanText(el.textContent) === name || normalizeText(el.textContent) === normalizeText(name))
 
         );
 
@@ -2957,7 +2967,7 @@ async function pressButton(names, { timeout = 5000 } = {}) {
 
         () => Array.from(document.querySelectorAll('.smart-list-button-label, .smart-list-button'))
 
-            .find(n => names.some(name => cleanText(n.textContent) === name)),
+            .find(n => names.some(name => cleanText(n.textContent) === name || normalizeText(n.textContent) === normalizeText(name))),
 
         { timeout }
 
@@ -3887,7 +3897,7 @@ async function navigateToPanel(sectionName, panelName) {
         let targetSectionWrapper = null;
         for (const wrap of sections) {
             const labelEl = wrap.querySelector('.section .text-padding');
-            if (labelEl && cleanText(labelEl.textContent) === sectionName) {
+            if (labelEl && (cleanText(labelEl.textContent) === sectionName || normalizeText(labelEl.textContent) === normalizeText(sectionName))) {
                 targetSectionWrapper = wrap;
                 break;
             }
@@ -3910,7 +3920,7 @@ async function navigateToPanel(sectionName, panelName) {
         const panels = Array.from(sectionsContainer.querySelectorAll('.panel'));
         const targetPanel = panels.find(p => {
             const labelEl = p.querySelector('.text-padding');
-            return labelEl && cleanText(labelEl.textContent) === panelName;
+            return labelEl && (cleanText(labelEl.textContent) === panelName || normalizeText(labelEl.textContent) === normalizeText(panelName));
         });
 
         if (targetPanel) {
